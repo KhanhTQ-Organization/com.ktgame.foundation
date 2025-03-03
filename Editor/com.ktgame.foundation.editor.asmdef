@@ -1,0 +1,14 @@
+{
+    "name": "com.ktgame.foundation.editor",
+    "rootNamespace": "com.ktgame.foundation.editor",
+    "references": ["GUID:200a4385217cc3c4aa09540ee4f3110d"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

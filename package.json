@@ -1,0 +1,15 @@
+{
+  "name": "com.ktgame.foundation",
+  "version": "1.0.0",
+  "displayName": "com.ktgame.foundation",
+  "description": "KTgame Foundation Package",
+  "unity": "2019.4",
+  "author": {
+    "name": "ktgame",
+    "email": "khanhquang0912qh@gmail.com",
+    "url": "https://github.com/KhanhTQ-hub/com.ktgame.foundation.git"
+  },
+  "dependencies": {
+    "com.ktgame.unitask": "1.0.0"
+  }
+}
