@@ -12,7 +12,7 @@ using Debug = UnityEngine.Debug;
 
 namespace com.ktgame.foundation
 {
-   /// <summary> Log level. </summary>
+    /// <summary> Log level. </summary>
     public enum LogLevel : byte
     {
         // Info.
