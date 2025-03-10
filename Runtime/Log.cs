@@ -111,9 +111,7 @@ namespace com.ktgame.foundation
 #if LOGS_EDITOR
         [Conditional("UNITY_EDITOR")]
 #endif
-        public static void Exception(string message, Exception e = null, [CallerName] string member = "",
-            [CallerPath] string sourceFile = "",
-            [CallerLine] int line = 0)
+        public static void Exception(string message, Exception e = null, [CallerName] string member = "", [CallerPath] string sourceFile = "", [CallerLine] int line = 0)
         {
             e ??= new Exception($"[{Path.GetFileNameWithoutExtension(sourceFile)}:{member}:{line}] {message}");
             Debug.LogException(e);
