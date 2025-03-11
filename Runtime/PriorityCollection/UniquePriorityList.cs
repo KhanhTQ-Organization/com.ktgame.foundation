@@ -14,8 +14,8 @@ namespace com.ktgame.foundation.priorityCollection
 	/// <typeparam name="T"></typeparam>
 	public class UniquePriorityList<T> : IEnumerable<T>, IEnumerable, ICollection, IReadOnlyCollection<T>
 	{
-		private readonly HashSet<T> _unique = new();
-		private readonly LinkedList<Node> _nodes = new();
+		private readonly HashSet<T> _unique = new HashSet<T>();
+		private readonly LinkedList<Node> _nodes = new LinkedList<Node>();
 
 		public IEnumerator<T> GetEnumerator()
 		{
