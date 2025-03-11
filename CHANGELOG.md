@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/KhanhTQ-hub/com.ktgame.foundation/compare/v1.0.2...v1.0.3) (2025-03-11)
+
+
+### Bug Fixes
+
+* remove pool foundation ([be87820](https://github.com/KhanhTQ-hub/com.ktgame.foundation/commit/be878208a0b560c383c2ae63f4e2871eb9a8f267))
+
 ## [1.0.2](https://github.com/KhanhTQ-hub/com.ktgame.foundation/compare/v1.0.1...v1.0.2) (2025-03-11)
 
 
