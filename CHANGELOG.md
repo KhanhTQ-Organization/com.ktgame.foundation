@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/KhanhTQ-hub/com.ktgame.foundation/compare/v1.0.1...v1.0.2) (2025-03-11)
+
+
+### Bug Fixes
+
+* unity version 2020 ([75ced34](https://github.com/KhanhTQ-hub/com.ktgame.foundation/commit/75ced34881e98945cf5e62d5522ab9948b91f7be))
+
 ## [1.0.1](https://github.com/KhanhTQ-hub/com.ktgame.foundation/compare/v1.0.0...v1.0.1) (2025-03-10)
 
 
