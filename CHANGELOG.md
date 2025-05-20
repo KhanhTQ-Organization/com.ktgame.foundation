@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/KhanhTQ-hub/com.ktgame.foundation/compare/v1.0.3...v1.0.4) (2025-05-20)
+
+
+### Bug Fixes
+
+* change asemply editor ([71dd4b9](https://github.com/KhanhTQ-hub/com.ktgame.foundation/commit/71dd4b9f1d2c0c81472d5985a2f9284b9f6475f9))
+
 ## [1.0.3](https://github.com/KhanhTQ-hub/com.ktgame.foundation/compare/v1.0.2...v1.0.3) (2025-03-11)
 
 
