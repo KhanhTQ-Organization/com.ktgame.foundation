@@ -1,3 +1,10 @@
+## [1.0.6](https://github.com/KhanhTQ-Organization/com.ktgame.foundation/compare/v1.0.5...v1.0.6) (2025-07-04)
+
+
+### Bug Fixes
+
+* update scope ([75e5005](https://github.com/KhanhTQ-Organization/com.ktgame.foundation/commit/75e5005ea3b2e85412329db1863118e6ab370e11))
+
 ## [1.0.5](https://github.com/KhanhTQ-Organization/com.ktgame.foundation/compare/v1.0.4...v1.0.5) (2025-07-03)
 
 
