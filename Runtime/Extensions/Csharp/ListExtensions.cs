@@ -1,105 +1,227 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using com.ktgame.foundation.math;
 
 namespace com.ktgame.foundation.extensions.csharp
 {
-    /// <summary> List extensions. </summary>
     public static class ListExtensions
     {
-        /// <summary> Returns an unordered list. </summary>
-        /// <param name="self"> The list. </param>
-        /// <returns> Unordered list. </returns>
-        public static T Random<T>(this IList<T> self) => self[MathUtilsRandom.Range(0, self.Count)];
+        #region Random
 
-        /// <summary> Swaps a pair of elements. </summary>
-        /// <param name="self"> The list. </param>
-        /// <param name="i"> First element. </param>
-        /// <param name="j"> Second element. </param>
-        public static void Swap<T>(this IList<T> self, int i, int j) => (self[i], self[j]) = (self[j], self[i]);
-
-        /// <summary> Eliminate an items range. </summary>
-        /// <param name="self"> The list. </param>
-        /// <param name="entries">Elements to be removed. </param>
-        public static void RemoveRange<T>(this IList<T> self, IEnumerable<T> entries)
+        public static T Random<T>(this IList<T> self)
         {
-            foreach (T item in entries)
-                self.Remove(item);
+            if (self == null || self.Count == 0)
+                return default;
+
+            return self[MathUtilsRandom.Range(0, self.Count)];
         }
 
-        /// <summary> Reverses a list of items in place. </summary>
-        /// <param name="self"> The list. </param>
-        public static void Reverse<T>(this IList<T> self) => Reverse(self, 0, self.Count);
-
-        /// <summary> Reverses a list of items. </summary>
-        /// <param name="self"> The list. </param>
-        /// <param name="from"> From. </param>
-        /// <param name="to"> To. </param>
-        public static void Reverse<T>(this IList<T> self, int from, int to)
+        public static bool TryRandom<T>(this IList<T> self, out T value)
         {
-            if (self is T[] array)
+            if (self != null && self.Count > 0)
             {
-                array.Reverse(from, to);
+                value = self[MathUtilsRandom.Range(0, self.Count)];
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
+        #endregion
+
+        #region Swap
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Swap<T>(this IList<T> self, int i, int j)
+        {
+            if (self == null) return;
+
+            (self[i], self[j]) = (self[j], self[i]);
+        }
+
+        #endregion
+
+        #region Remove
+
+        /// <summary>
+        /// Remove nhanh O(1) nhưng không giữ thứ tự
+        /// </summary>
+        public static void RemoveAtSwapBack<T>(this IList<T> self, int index)
+        {
+            if (self == null || self.Count == 0) return;
+
+            int last = self.Count - 1;
+
+            self[index] = self[last];
+            self.RemoveAt(last);
+        }
+
+        /// <summary>
+        /// Remove nhiều phần tử (optimized)
+        /// </summary>
+        public static void RemoveRange<T>(this IList<T> self, ICollection<T> entries)
+        {
+            if (self == null || entries == null || entries.Count == 0)
+            {
                 return;
             }
+
+            var set = new HashSet<T>(entries);
+
+            for (int i = self.Count - 1; i >= 0; i--)
+            {
+                if (set.Contains(self[i]))
+                {
+                    self.RemoveAt(i);
+                }
+            }
+        }
+        
+        public static void RemoveRange<T>(this IList<T> self, IEnumerable<T> entries)
+        {
+            if (self == null || entries == null)
+            {
+                return;
+            }
+
+            var set = new HashSet<T>(entries);
+            if (set.Count == 0)
+            {
+                return;
+            }
+
+            for (int i = self.Count - 1; i >= 0; i--)
+            {
+                if (set.Contains(self[i]))
+                {
+                    self.RemoveAt(i);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Reverse / Shuffle
+
+        public static void Reverse<T>(this IList<T> self)
+        {
+            if (self == null) return;
+            Reverse(self, 0, self.Count);
+        }
+
+        public static void Reverse<T>(this IList<T> self, int from, int to)
+        {
+            if (self == null) return;
 
             while (--to > from)
                 self.Swap(from++, to);
         }
 
-        /// <summary> It unordered the list. </summary>
-        /// <param name="self"> The list. </param>
         public static void Shuffle<T>(this IList<T> self)
         {
-            int n = self.Count - 1;
-            while (n > 1)
+            if (self == null) return;
+
+            for (int i = self.Count - 1; i > 0; i--)
             {
-                n--;
-                int k = UnityEngine.Random.Range(0, self.Count);
-                (self[k], self[n]) = (self[n], self[k]);
+                int j = MathUtilsRandom.Range(0, i + 1);
+                self.Swap(i, j);
             }
         }
 
-        /// <summary> Returns the maximum value in the list. </summary>
-        /// <typeparam name="T">The type of value to check.</typeparam>
-        /// <param name="self">The values to check.</param>
-        /// <returns>The maximum value in the list.</returns>
-        public static T Max<T>(this List<T> self) where T : IComparable<T>
+        #endregion
+
+        #region Query
+
+        public static bool TryGet<T>(this IList<T> self, int index, out T value)
+        {
+            if (self != null && index >= 0 && index < self.Count)
+            {
+                value = self[index];
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
+        #endregion
+
+        #region Math
+
+        public static T Max<T>(this IList<T> self) where T : IComparable<T>
         {
             if (self == null || self.Count == 0)
                 return default;
 
             T max = self[0];
-            int total = self.Count;
-            for (int i = 1; i < total; ++i)
+
+            for (int i = 1; i < self.Count; i++)
             {
-                T element = self[i];
-                if (element.CompareTo(max) > 0)
-                    max = element;
+                if (self[i].CompareTo(max) > 0)
+                    max = self[i];
             }
 
             return max;
         }
 
-        /// <summary> Returns the minimum value in the list. </summary>
-        /// <typeparam name="T">The type of value to check.</typeparam>
-        /// <param name="self">The values to check.</param>
-        /// <returns>The minimum value in the list.</returns>
-        public static T Min<T>(this List<T> self) where T : IComparable<T>
+        public static T Min<T>(this IList<T> self) where T : IComparable<T>
         {
             if (self == null || self.Count == 0)
                 return default;
 
             T min = self[0];
-            int total = self.Count;
-            for (int i = 1; i < total; ++i)
+
+            for (int i = 1; i < self.Count; i++)
             {
-                T element = self[i];
-                if (element.CompareTo(min) < 0)
-                    min = element;
+                if (self[i].CompareTo(min) < 0)
+                    min = self[i];
             }
 
             return min;
         }
+
+        public static T MaxBy<T>(this IList<T> self, Func<T, float> selector)
+        {
+            if (self == null || self.Count == 0)
+                return default;
+
+            T best = self[0];
+            float bestVal = selector(best);
+
+            for (int i = 1; i < self.Count; i++)
+            {
+                float v = selector(self[i]);
+                if (v > bestVal)
+                {
+                    bestVal = v;
+                    best = self[i];
+                }
+            }
+
+            return best;
+        }
+
+        #endregion
+
+        #region Add
+
+        /// <summary>
+        /// AddRange không alloc Enumerator (for List)
+        /// </summary>
+        public static void AddRangeFast<T>(this List<T> self, List<T> other)
+        {
+            if (self == null || other == null || other.Count == 0)
+                return;
+
+            int count = other.Count;
+            self.Capacity = Math.Max(self.Capacity, self.Count + count);
+
+            for (int i = 0; i < count; i++)
+                self.Add(other[i]);
+        }
+
+        #endregion
     }
 }

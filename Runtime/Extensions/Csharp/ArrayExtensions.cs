@@ -1,287 +1,353 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using com.ktgame.foundation.math;
-using UnityEngine.Assertions;
 
 namespace com.ktgame.foundation.extensions.csharp
 {
-    /// <summary> Array extensions. </summary>
-    public static class ArrayExtensions
-    {
-        /// <summary> Adds an element to the end of the array. </summary>
-        /// <param name="self"> The array. </param>
-        /// <param name="item"> Item. </param>
-        /// <returns> Array with added value. </returns>
-        public static T[] Append<T>(this T[] self, T item)
-        {
-            T[] result = new T[self.Length + 1];
-            result[result.Length - 1] = item;
+	public static class ArrayExtensions
+	{
+#region Append
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static T[] Append<T>(this T[] self, T item)
+		{
+			if (self == null)
+				return new[] { item };
 
-            return result;
-        }
+			int len = self.Length;
+			var result = new T[len + 1];
 
-        /// <summary> Adds an array to the end of the array. </summary>
-        /// <param name="self"> The array. </param>
-        /// <param name="items"> Array. </param>
-        /// <returns> Array with added values. </returns>
-        public static T[] Append<T>(this T[] self, T[] items)
-        {
-            Assert.IsNotNull(items);
+			Array.Copy(self, result, len);
+			result[len] = item;
 
-            T[] result = new T[self.Length + items.Length];
-            self.CopyTo(result, 0);
-            items.CopyTo(result, self.Length);
+			return result;
+		}
 
-            return result;
-        }
+		public static T[] Append<T>(this T[] self, T[] items)
+		{
+			if (self == null)
+				return items?.Copy();
+			if (items == null || items.Length == 0)
+				return self.Copy();
 
-        /// <summary> Contains an element? </summary>
-        /// <param name="self"> The array. </param>
-        /// <param name="element"> Item. </param>
-        /// <returns> True if it contains at least one element. </returns>
-        public static bool Contains<T>(this T[] self, T element) where T : IComparable
-        {
-            for (int i = 0, len = self.Length; i < len; ++i)
-            {
-                if (self[i].Equals(element) == true)
-                    return true;
-            }
+			int len = self.Length;
+			int len2 = items.Length;
 
-            return false;
-        }
+			var result = new T[len + len2];
 
-        /// <summary> Position of the first element in the array. </summary>
-        /// <param name="self"> The array. </param>
-        /// <param name="value"> Item. </param>
-        /// <returns> 0-based index of the element or -1. </returns>
-        public static int IndexOf<T>(this T[] self, T value) where T : IComparable
-        {
-            for (int i = 0; i < self.Length; ++i)
-            {
-                if (self[i].Equals(value) == true)
-                    return i;
-            }
+			Array.Copy(self, 0, result, 0, len);
+			Array.Copy(items, 0, result, len, len2);
 
-            return -1;
-        }
+			return result;
+		}
+#endregion
+		
+#region Clear
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void Clear<T>(this T[] self)
+		{
+			if (self == null)
+				return;
 
-        /// <summary> Position of the first element in the array that meets a condition. </summary>
-        /// <param name="self"> The array. </param>
-        /// <param name="condition"> Condition. </param>
-        /// <returns> 0-based index of the element or -1. </returns>
-        public static int IndexOf<T>(this T[] array, Func<T, bool> condition) where T : IComparable
-        {
-            for (int i = 0; i < array.Length; ++i)
-            {
-                if (condition(array[i]) == true)
-                    return i;
-            }
+			Array.Clear(self, 0, self.Length);
+		}
 
-            return -1;
-        }
+		/// <summary>
+		/// Sets a range of elements in the array to default.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void Clear<T>(this T[] self, int index, int count)
+		{
+			if (self == null || count <= 0)
+				return;
 
-        /// <summary> Removes the first occurrence of an element. </summary>
-        /// <param name="self"> The array. </param>
-        /// <param name="value"> Item. </param>
-        /// <returns> Array without the first element. </returns>
-        public static T[] Remove<T>(this T[] self, T value)
-        {
-            List<T> elems = new List<T>(self);
-            elems.Remove(value);
+			int len = self.Length;
 
-            return elems.ToArray();
-        }
+			if (index < 0)
+				index = 0;
 
-        /// <summary> Deletes an element according to its index. </summary>
-        /// <param name="self"> The array. </param>
-        /// <param name="index"> Index. </param>
-        /// <returns> Array without that element. </returns>
-        public static T[] RemoveAt<T>(this T[] self, int index)
-        {
-            T[] result = new T[self.Length - 1];
+			if (index >= len)
+				return;
 
-            if (index == 0 && result.Length > 0)
-                Array.Copy(self, 1, result, 0, self.Length - 1);
-            else if (index == self.Length - 1)
-                Array.Copy(self, result, self.Length - 1);
-            else
-            {
-                Array.Copy(self, 0, result, 0, index);
-                Array.Copy(self, index + 1, result, index, self.Length - index - 1);
-            }
+			if (index + count > len)
+				count = len - index;
 
-            return result;
-        }
+			Array.Clear(self, index, count);
+		}
+#endregion
 
-        /// <summary> Fills an array of one element. </summary>
-        /// <param name="self"> The array. </param>
-        /// <param name="value"> Value. </param>
-        /// <returns> Array filled with that element. </returns>
-        public static T[] Fill<T>(this T[] self, T value)
-        {
-            for (int i = 0; i < self.Length; ++i)
-                self[i] = value;
+#region Contains / Index
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool Contains<T>(this T[] self, T value)
+		{
+			if (self == null)
+				return false;
 
-            return self;
-        }
+			var comparer = EqualityComparer<T>.Default;
 
-        /// <summary> Fills an array using a function. </summary>
-        /// <param name="self"> The array. </param>
-        /// <param name="filler"> Filling function. </param>
-        /// <returns> Filled array. </returns>
-        public static T[] Fill<T>(this T[] self, Func<int, T> filler)
-        {
-            for (int i = 0; i < self.Length; ++i)
-                self[i] = filler(i);
+			for (int i = 0; i < self.Length; i++)
+			{
+				if (comparer.Equals(self[i], value))
+					return true;
+			}
 
-            return self;
-        }
+			return false;
+		}
 
-        /// <summary> Returns a random element. </summary>
-        /// <param name="self"> The array. </param>
-        /// <returns> Value or default. </returns>
-        public static T Random<T>(this T[] self) => self.Length > 0 ? self[MathUtilsRandom.Range(0, self.Length)] : default;
+		public static int IndexOf<T>(this T[] self, T value)
+		{
+			if (self == null)
+				return -1;
 
-        /// <summary> Sets array to default. </summary>
-        /// <param name="self"> The array. </param>
-        public static void Clear<T>(this T[] self) => Array.Clear(self, 0, self.Length);
+			var comparer = EqualityComparer<T>.Default;
 
-        /// <summary> Sets a range of elements in the array to default. </summary>
-        /// <param name="self"> The array. </param>
-        /// <param name="index"> Start of the range. </param>
-        /// <param name="count"> Number of elements to be cleaned. </param>
-        public static void Clear<T>(this T[] self, int index, int count) => Array.Clear(self, index, count);
+			for (int i = 0; i < self.Length; i++)
+			{
+				if (comparer.Equals(self[i], value))
+					return i;
+			}
 
-        /// <summary> Copies one array into another. </summary>
-        /// <param name="self"> The array. </param>
-        /// <returns> Copy of the array. </returns>
-        public static T[] Copy<T>(this T[] self)
-        {
-            T[] result = new T[self.Length];
-            Array.Copy(self, result, self.Length);
+			return -1;
+		}
 
-            return result;
-        }
+		public static int IndexOf<T>(this T[] self, Func<T, bool> predicate)
+		{
+			if (self == null || predicate == null)
+				return -1;
 
-        /// <summary> Get a subarray. </summary>
-        /// <param name="self"> The array. </param>
-        /// <param name="offset"> Offset. </param>
-        /// <param name="length"> Length. </param>
-        /// <returns> Subarray. </returns>
-        public static T[] Sub<T>(this T[] self, int offset, int length) => new ArraySegment<T>(self, offset, length).ToArray();
+			for (int i = 0; i < self.Length; i++)
+			{
+				if (predicate(self[i]))
+					return i;
+			}
 
-        /// <summary> Swaps a pair of elements. </summary>
-        /// <param name="self"> The array. </param>
-        /// <param name="i"> First element. </param>
-        /// <param name="j"> Second element. </param>
-        public static void Swap<T>(this T[] self, int i, int j) => (self[i], self[j]) = (self[j], self[i]);
+			return -1;
+		}
+#endregion
 
-        /// <summary> Reverses an array of items in place. </summary>
-        /// <param name="self"> The array. </param>
-        public static void Reverse<T>(this T[] self) => Reverse(self, 0, self.Length);
+#region Remove
+		public static T[] RemoveAt<T>(this T[] self, int index)
+		{
+			if (self == null || self.Length == 0)
+				return Array.Empty<T>();
 
-        /// <summary> Reverses the order of the items within the specified range in place. </summary>
-        /// <param name="self"> The array. </param>
-        /// <param name="from"> From. </param>
-        /// <param name="to"> To. </param>
-        public static void Reverse<T>(this T[] self, int from, int to)
-        {
-            while (--to > from)
-                self.Swap(from++, to);
-        }
+			if (index < 0 || index >= self.Length)
+				return self.Copy();
 
-        /// <summary> Unsorts an array. </summary>
-        /// <param name="self"> The array. </param>
-        public static void Shuffle<T>(this T[] self)
-        {
-            for (int i = self.Length - 1; i > 0; i--)
-            {
-                int j = MathUtilsRandom.Range(0, i);
-                self.Swap(i, j);
-            }
-        }
+			int len = self.Length;
+			var result = new T[len - 1];
 
-        /// <summary> Unsorts an array. </summary>
-        /// <param name="self"> The array. </param>
-        /// <param name="index"> Start element. </param>
-        /// <param name="count"> Number of items. </param>
-        public static void Shuffle<T>(this T[] self, int index, int count)
-        {
-            for (int i = count - 1; i > 0; i--)
-            {
-                int j = MathUtilsRandom.Range(0, i);
-                self.Swap(i + index, j + index);
-            }
-        }
+			if (index > 0)
+				Array.Copy(self, 0, result, 0, index);
 
-        /// <summary> Calculates the sum of all elements in the array. </summary>
-        /// <param name="self"> The array. </param>
-        /// <returns> The sum of all elements in the array. </returns>
-        public static int Sum(this int[] self)
-        {
-            int sum = 0, total = self.Length;
+			if (index < len - 1)
+				Array.Copy(self, index + 1, result, index, len - index - 1);
 
-            for (int i = 0; i < total; ++i)
-                sum += self[i];
+			return result;
+		}
 
-            return sum;
-        }
+		public static T[] Remove<T>(this T[] self, T value)
+		{
+			int index = self.IndexOf(value);
+			return index >= 0 ? self.RemoveAt(index) : self;
+		}
+#endregion
 
-        /// <summary> Calculates the sum of all elements in the array. </summary>
-        /// <param name="self"> The array. </param>
-        /// <returns> The sum of all elements in the array. </returns>
-        public static float Sum(this float[] self)
-        {
-            float sum = 0.0f;
-            int total = self.Length;
+#region Fill
+		public static void Fill<T>(this T[] self, T value)
+		{
+			if (self == null)
+				return;
 
-            for (int i = 0; i < total; ++i)
-                sum += self[i];
+			for (int i = 0; i < self.Length; i++)
+				self[i] = value;
+		}
 
-            return sum;
-        }
+		public static void Fill<T>(this T[] self, Func<int, T> filler)
+		{
+			if (self == null || filler == null)
+				return;
 
-        /// <summary> Returns the maximum value in the array. </summary>
-        /// <typeparam name="T">The type of value to check.</typeparam>
-        /// <param name="self"> The array. </param>
-        /// <returns>The maximum value in the array.</returns>
-        public static T Max<T>(this T[] self) where T : IComparable<T>
-        {
-            if (self == null || self.Length == 0)
-                return default;
+			for (int i = 0; i < self.Length; i++)
+				self[i] = filler(i);
+		}
+#endregion
 
-            T max = self[0];
-            int total = self.Length;
-            for (int i = 1; i < total; ++i)
-            {
-                T element = self[i];
-                if (element.CompareTo(max) > 0)
-                    max = element;
-            }
+#region Random
+		public static T Random<T>(this T[] self)
+		{
+			if (self == null || self.Length == 0)
+				return default;
 
-            return max;
-        }
+			return self[MathUtilsRandom.Range(0, self.Length)];
+		}
+#endregion
 
-        /// <summary> Returns the minimum value in the array. </summary>
-        /// <typeparam name="T">The type of value to check.</typeparam>
-        /// <param name="self"> The array. </param>
-        /// <returns>The minimum value in the array.</returns>
-        public static T Min<T>(this T[] self) where T : IComparable<T>
-        {
-            if (self == null || self.Length == 0)
-                return default;
+#region Copy / Sub
+		public static T[] Copy<T>(this T[] self)
+		{
+			if (self == null)
+				return null;
 
-            T min = self[0];
-            int total = self.Length;
-            for (int i = 1; i < total; ++i)
-            {
-                T element = self[i];
-                if (element.CompareTo(min) < 0)
-                    min = element;
-            }
+			var result = new T[self.Length];
+			Array.Copy(self, result, self.Length);
+			return result;
+		}
 
-            return min;
-        }
-    }
+		public static T[] Sub<T>(this T[] self, int offset, int length)
+		{
+			if (self == null || length <= 0)
+				return Array.Empty<T>();
+
+			int max = self.Length;
+
+			if (offset < 0)
+				offset = 0;
+			if (offset >= max)
+				return Array.Empty<T>();
+
+			if (offset + length > max)
+				length = max - offset;
+
+			var result = new T[length];
+			Array.Copy(self, offset, result, 0, length);
+
+			return result;
+		}
+#endregion
+
+#region Swap / Reverse / Shuffle
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void Swap<T>(this T[] self, int i, int j)
+		{
+			if (self == null)
+				return;
+
+			(self[i], self[j]) = (self[j], self[i]);
+		}
+
+		public static void Reverse<T>(this T[] self)
+		{
+			if (self == null)
+				return;
+
+			Reverse(self, 0, self.Length);
+		}
+
+		public static void Reverse<T>(this T[] self, int from, int to)
+		{
+			if (self == null)
+				return;
+
+			while (--to > from)
+				self.Swap(from++, to);
+		}
+
+		public static void Shuffle<T>(this T[] self)
+		{
+			if (self == null)
+				return;
+
+			for (int i = self.Length - 1; i > 0; i--)
+			{
+				int j = MathUtilsRandom.Range(0, i + 1);
+				self.Swap(i, j);
+			}
+		}
+#endregion
+
+#region Math
+		public static int Sum(this int[] self)
+		{
+			if (self == null)
+				return 0;
+
+			int sum = 0;
+			for (int i = 0; i < self.Length; i++)
+				sum += self[i];
+
+			return sum;
+		}
+
+		public static float Sum(this float[] self)
+		{
+			if (self == null)
+				return 0;
+
+			float sum = 0;
+			for (int i = 0; i < self.Length; i++)
+				sum += self[i];
+
+			return sum;
+		}
+
+		public static T Max<T>(this T[] self) where T : IComparable<T>
+		{
+			if (self == null || self.Length == 0)
+				return default;
+
+			T max = self[0];
+
+			for (int i = 1; i < self.Length; i++)
+			{
+				if (self[i].CompareTo(max) > 0)
+					max = self[i];
+			}
+
+			return max;
+		}
+
+		public static T Min<T>(this T[] self) where T : IComparable<T>
+		{
+			if (self == null || self.Length == 0)
+				return default;
+
+			T min = self[0];
+
+			for (int i = 1; i < self.Length; i++)
+			{
+				if (self[i].CompareTo(min) < 0)
+					min = self[i];
+			}
+
+			return min;
+		}
+#endregion
+
+#region Advanced (PRO)
+		public static T MaxBy<T>(this T[] self, Func<T, float> selector)
+		{
+			if (self == null || self.Length == 0)
+				return default;
+
+			T best = self[0];
+			float bestVal = selector(best);
+
+			for (int i = 1; i < self.Length; i++)
+			{
+				float v = selector(self[i]);
+				if (v > bestVal)
+				{
+					bestVal = v;
+					best = self[i];
+				}
+			}
+
+			return best;
+		}
+
+		public static bool TryGet<T>(this T[] self, int index, out T value)
+		{
+			if (self != null && index >= 0 && index < self.Length)
+			{
+				value = self[index];
+				return true;
+			}
+
+			value = default;
+			return false;
+		}
+#endregion
+	}
 }
