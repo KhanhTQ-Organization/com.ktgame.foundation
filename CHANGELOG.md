@@ -1,3 +1,10 @@
+## [1.0.8](https://github.com/KhanhTQ-Organization/com.ktgame.foundation/compare/v1.0.7...v1.0.8) (2026-05-06)
+
+
+### Bug Fixes
+
+* rl ip scope ([40aa68c](https://github.com/KhanhTQ-Organization/com.ktgame.foundation/commit/40aa68c7c28ecb9e1401a25fdbcd910a57b2112e))
+
 ## [1.0.7](https://github.com/KhanhTQ-Organization/com.ktgame.foundation/compare/v1.0.6...v1.0.7) (2026-03-25)
 
 
