@@ -7,17 +7,19 @@ namespace com.ktgame.foundation.animation
         public IAnimation Animation { get; private set; }
 
         public bool IsPlaying { get; private set; }
+        
+        public bool IsLooping { get; set; }
 
         public float Time { get; private set; }
 
-        public bool IsFinished => Time >= Animation.Duration;
+        public bool IsFinished => !IsLooping && Time >= Animation.Duration;
 
-        public AnimationPlayer(IAnimation animation)
+        public AnimationPlayer(IAnimation animation, bool isLooping = false)
         {
             Animation = animation;
+            IsLooping = isLooping;
             IsPlaying = false;
-            var time = Math.Max(0, Math.Min(animation.Duration, 0f));
-            animation.SetTime(Time = time);
+            SetTime(0f);
         }
 
         public void Update(float deltaTime)
@@ -47,10 +49,18 @@ namespace com.ktgame.foundation.animation
 
         public void SetTime(float time)
         {
+            if (Animation.Duration > 0)
+            {
+                if (IsLooping && time >= Animation.Duration)
+                {
+                    time %= Animation.Duration;
+                }
+            }
+            
             time = Math.Max(0, Math.Min(Animation.Duration, time));
             Animation.SetTime(time);
 
-            if (IsPlaying && time >= Animation.Duration)
+            if (IsPlaying && !IsLooping && time >= Animation.Duration)
             {
                 Stop();
             }

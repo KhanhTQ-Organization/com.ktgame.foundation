@@ -364,12 +364,12 @@ namespace com.ktgame.foundation.extensions.unity
         /// <summary> Sets the X rotation. </summary>
         /// <param name="self">Transform</param>
         /// <param name="angle">Degrees angle</param>
-        public static void SetRotationX(this Transform self, float angle) => self.eulerAngles = new Vector3(angle, 0.0f, 0.0f);
+        public static void SetRotationX(this Transform self, float angle) => self.eulerAngles = new Vector3(angle, self.eulerAngles.y, self.eulerAngles.z);
 
         /// <summary> Sets the Y rotation. </summary>
         /// <param name="self">Transform</param>
         /// <param name="angle">Degrees angle</param>
-        public static void SetRotationY(this Transform self, float angle) => self.eulerAngles = new Vector3(0.0f, angle, 0.0f);
+        public static void SetRotationY(this Transform self, float angle) => self.eulerAngles = new Vector3(self.eulerAngles.x, angle, self.eulerAngles.z);
 
         /// <summary> Adds a modifier to the current y rotation </summary>
         /// <param name="self">Transform</param>
@@ -381,22 +381,22 @@ namespace com.ktgame.foundation.extensions.unity
         /// <summary> Sets the Z rotation. </summary>
         /// <param name="self">Transform</param>
         /// <param name="angle">Degrees angle</param>
-        public static void SetRotationZ(this Transform self, float angle) => self.eulerAngles = new Vector3(0.0f, 0.0f, angle);
+        public static void SetRotationZ(this Transform self, float angle) => self.eulerAngles = new Vector3(self.eulerAngles.x, self.eulerAngles.y, angle);
 
         /// <summary> Sets the local X rotation. </summary>
         /// <param name="self">Transform</param>
         /// <param name="angle">Degrees angle</param>
-        public static void SetLocalRotationX(this Transform self, float angle) => self.localRotation = Quaternion.Euler(new Vector3(angle, 0.0f, 0.0f));
+        public static void SetLocalRotationX(this Transform self, float angle) => self.localEulerAngles = new Vector3(angle, self.localEulerAngles.y, self.localEulerAngles.z);
 
         /// <summary> Sets the local Y rotation. </summary>
         /// <param name="self">Transform</param>
         /// <param name="angle">Degrees angle</param>
-        public static void SetLocalRotationY(this Transform self, float angle) => self.localRotation = Quaternion.Euler(new Vector3(0.0f, angle, 0.0f));
+        public static void SetLocalRotationY(this Transform self, float angle) => self.localEulerAngles = new Vector3(self.localEulerAngles.x, angle, self.localEulerAngles.z);
 
         /// <summary> Sets the local Z rotation. </summary>
         /// <param name="self">Transform</param>
         /// <param name="angle">Degrees angle</param>
-        public static void SetLocalRotationZ(this Transform self, float angle) => self.localRotation = Quaternion.Euler(new Vector3(0.0f, 0.0f, angle));
+        public static void SetLocalRotationZ(this Transform self, float angle) => self.localEulerAngles = new Vector3(self.localEulerAngles.x, self.localEulerAngles.y, angle);
 
         /// <summary> Resets the rotation to 0, 0, 0. </summary>
         /// <param name="self">Transform</param>

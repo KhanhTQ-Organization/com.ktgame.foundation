@@ -137,22 +137,18 @@ namespace com.ktgame.foundation.extensions.unity
 				SafeDestroy(self.gameObject);
 		}
 
-		/// <summary> Returns the first child GameObject with a name, or null. </summary>
+		/// <summary> Returns the first active GameObject with a name, or null. </summary>
 		/// <param name="name">Name</param>
 		/// <returns>GameObject or null</returns>
 		public static GameObject FindChildrenByName(string name)
 		{
-			GameObject[] allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-			for (int i = 0; i < allObjects.Length; ++i)
-			{
-				if (name.Equals(allObjects[i].name) == true)
-					return allObjects[i];
-			}
-
-			return null;
+			// Replaced catastrophically slow Resources.FindObjectsOfTypeAll with standard Find.
+			// Note: This only finds active game objects. If you need to find an inactive child, 
+			// use the Transform.FindChildRecursive extension on the parent instead.
+			return GameObject.Find(name);
 		}
 		
-		   /// <summary>
+		/// <summary>
         /// Set Parent for GameObject
         /// </summary>
         /// <param name="gameObject"></param>
@@ -161,6 +157,7 @@ namespace com.ktgame.foundation.extensions.unity
         {
             gameObject.SetParent(parent, Vector3.zero, Vector3.one);
         }
+
         /// <summary>
         /// Set Parent for GameObject
         /// </summary>
@@ -171,6 +168,7 @@ namespace com.ktgame.foundation.extensions.unity
         {
             gameObject.SetParent(parent, position, Vector3.one);
         }
+
         /// <summary>
         /// Set Parent for GameObject
         /// </summary>
@@ -185,6 +183,7 @@ namespace com.ktgame.foundation.extensions.unity
             gameObject.transform.localRotation = Quaternion.identity;
             gameObject.transform.localScale = scale;
         }
+
         /// <summary>
         /// Try to Get Component
         /// </summary>
@@ -198,17 +197,6 @@ namespace com.ktgame.foundation.extensions.unity
                 component = gameObject.AddComponent<T>();
             }
             return component;
-        }
-        public static void DestroyAllChilren(this Transform parent)
-        {
-            while (parent.childCount > 0)
-			{
-				Object.DestroyImmediate(parent.GetChild(0).gameObject);
-			}
-		}
-        public static void DestroyAllChilren(this GameObject parent)
-        {
-			parent.transform.DestroyAllChilren();
         }
 	}
 }

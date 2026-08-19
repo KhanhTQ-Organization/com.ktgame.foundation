@@ -389,80 +389,76 @@ namespace com.ktgame.foundation.extensions.csharp
             return decompressed;
         }
 
-        /// <summary> Encrypts the string using TripleDES. </summary>
+        /// <summary> Encrypts the string using AES-256. </summary>
         /// <param name="passphrase">Passphrase</param>
         /// <returns>Text encrypted</returns>
         public static string Encrypt(this string self, string passphrase)
         {
-            byte[] Results;
-            UTF8Encoding UTF8 = new UTF8Encoding();
+            if (string.IsNullOrEmpty(self)) return self;
 
-            MD5CryptoServiceProvider HashProvider = new MD5CryptoServiceProvider();
-            byte[] tdesKey = HashProvider.ComputeHash(UTF8.GetBytes(passphrase));
-
-            TripleDESCryptoServiceProvider tdesAlgorithm = new TripleDESCryptoServiceProvider()
+            byte[] clearBytes = Encoding.UTF8.GetBytes(self);
+            using (Aes aes = Aes.Create())
             {
-                Key = tdesKey,
-                Mode = CipherMode.ECB,
-                Padding = PaddingMode.PKCS7
-            };
+                using (SHA256 sha256 = SHA256.Create())
+                {
+                    aes.Key = sha256.ComputeHash(Encoding.UTF8.GetBytes(passphrase));
+                }
+                aes.GenerateIV();
 
-            byte[] DataToEncrypt = UTF8.GetBytes(self);
-
-            try
-            {
-                ICryptoTransform Encryptor = tdesAlgorithm.CreateEncryptor();
-                Results = Encryptor.TransformFinalBlock(DataToEncrypt, 0, DataToEncrypt.Length);
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    ms.Write(aes.IV, 0, aes.IV.Length);
+                    using (CryptoStream cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(clearBytes, 0, clearBytes.Length);
+                    }
+                    
+                    // Base64Url encode
+                    return Convert.ToBase64String(ms.ToArray())
+                        .Replace("+", "-")
+                        .Replace("/", "_")
+                        .Replace("=", "");
+                }
             }
-            finally
-            {
-                tdesAlgorithm.Clear();
-                HashProvider.Clear();
-            }
-
-            string enc = Convert.ToBase64String(Results);
-            enc = enc.Replace("+", "KKK");
-            enc = enc.Replace("/", "JJJ");
-            enc = enc.Replace("\\", "III");
-
-            return enc;
         }
 
-        /// <summary> Decrypts the string using TripleDES. </summary>
+        /// <summary> Decrypts the string using AES-256. </summary>
         /// <param name="passphrase">Passphrase</param>
         /// <returns>Text decrypted</returns>
         public static string Decrypt(this string self, string passphrase)
         {
-            byte[] Results;
-            UTF8Encoding UTF8 = new UTF8Encoding();
+            if (string.IsNullOrEmpty(self)) return self;
 
-            MD5CryptoServiceProvider HashProvider = new MD5CryptoServiceProvider();
-            byte[] tdesKey = HashProvider.ComputeHash(UTF8.GetBytes(passphrase));
-
-            TripleDESCryptoServiceProvider tdesAlgorithm = new TripleDESCryptoServiceProvider()
+            // Base64Url decode
+            string b64 = self.Replace("-", "+").Replace("_", "/");
+            switch (b64.Length % 4)
             {
-                Key = tdesKey,
-                Mode = CipherMode.ECB,
-                Padding = PaddingMode.PKCS7
-            };
-
-            self = self.Replace("KKK", "+");
-            self = self.Replace("JJJ", "/");
-            self = self.Replace("III", "\\");
-
-            try
-            {
-                byte[] DataToDecrypt = Convert.FromBase64String(self);
-                ICryptoTransform decryptor = tdesAlgorithm.CreateDecryptor();
-                Results = decryptor.TransformFinalBlock(DataToDecrypt, 0, DataToDecrypt.Length);
-            }
-            finally
-            {
-                tdesAlgorithm.Clear();
-                HashProvider.Clear();
+                case 2: b64 += "=="; break;
+                case 3: b64 += "="; break;
             }
 
-            return UTF8.GetString(Results);
+            byte[] cipherBytes = Convert.FromBase64String(b64);
+
+            using (Aes aes = Aes.Create())
+            {
+                using (SHA256 sha256 = SHA256.Create())
+                {
+                    aes.Key = sha256.ComputeHash(Encoding.UTF8.GetBytes(passphrase));
+                }
+
+                byte[] iv = new byte[aes.IV.Length];
+                Array.Copy(cipherBytes, 0, iv, 0, iv.Length);
+                aes.IV = iv;
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(cipherBytes, iv.Length, cipherBytes.Length - iv.Length);
+                    }
+                    return Encoding.UTF8.GetString(ms.ToArray());
+                }
+            }
         }
 
         /// <summary> Similarity between two strings using Levenshtein algorithm. The higher, the more different are. </summary>

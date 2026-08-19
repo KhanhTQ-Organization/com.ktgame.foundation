@@ -8,8 +8,6 @@ namespace com.ktgame.foundation.extensions.csharp
     {
         private static readonly string[] SizeSuffixes = { @"bytes", @"KB", @"MB", @"GB", @"TB", @"PB", @"EB", @"ZB", @"YB" };
 
-        private const long ByteConversion = 1000;
-
         /// <summary> Value sign. </summary>
         /// <param name="self">Value</param>
         /// <returns>1 if greater than or equal to 0, -1 if less than 0.</returns>
@@ -136,7 +134,7 @@ namespace com.ktgame.foundation.extensions.csharp
             if (self == 0)
                 return "0 bytes";
 
-            int mag = (int)Math.Log(self, ByteConversion);
+            int mag = (int)Math.Log(self, 1024);
             float adjustedSize = self / Mathf.Pow(1024, mag);
 
             return $"{adjustedSize.ToInvariantCulture()} {SizeSuffixes[mag]}";

@@ -70,11 +70,18 @@ namespace com.ktgame.foundation.extensions.csharp
 
             var set = new HashSet<T>(entries);
 
-            for (int i = self.Count - 1; i >= 0; i--)
+            if (self is List<T> list)
             {
-                if (set.Contains(self[i]))
+                list.RemoveAll(x => set.Contains(x));
+            }
+            else
+            {
+                for (int i = self.Count - 1; i >= 0; i--)
                 {
-                    self.RemoveAt(i);
+                    if (set.Contains(self[i]))
+                    {
+                        self.RemoveAt(i);
+                    }
                 }
             }
         }
@@ -92,11 +99,18 @@ namespace com.ktgame.foundation.extensions.csharp
                 return;
             }
 
-            for (int i = self.Count - 1; i >= 0; i--)
+            if (self is List<T> list)
             {
-                if (set.Contains(self[i]))
+                list.RemoveAll(x => set.Contains(x));
+            }
+            else
+            {
+                for (int i = self.Count - 1; i >= 0; i--)
                 {
-                    self.RemoveAt(i);
+                    if (set.Contains(self[i]))
+                    {
+                        self.RemoveAt(i);
+                    }
                 }
             }
         }
