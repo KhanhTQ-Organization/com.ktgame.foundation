@@ -1,3 +1,10 @@
+## [1.0.10](https://github.com/KhanhTQ-Organization/com.ktgame.foundation/compare/v1.0.9...v1.0.10) (2026-08-19)
+
+
+### Bug Fixes
+
+* update version ([4a216fd](https://github.com/KhanhTQ-Organization/com.ktgame.foundation/commit/4a216fdedda05de14ccec533c7d1d67322dceb40))
+
 ## [1.0.9](https://github.com/KhanhTQ-Organization/com.ktgame.foundation/compare/v1.0.8...v1.0.9) (2026-08-19)
 
 
