@@ -1,6 +1,6 @@
 {
   "name": "com.ktgame.foundation",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "displayName": "com.ktgame.foundation",
   "description": "KTgame Foundation Package",
   "unity": "2019.4",
@@ -10,7 +10,7 @@
     "url": "https://github.com/KhanhTQ-hub/com.ktgame.foundation.git"
   },
   "dependencies": {
-    "com.ktgame.unitask": "1.0.3"
+    "com.ktgame.unitask": "1.0.4"
   },
   "publishConfig": {
     "registry": "http://3.25.115.5:4873"
