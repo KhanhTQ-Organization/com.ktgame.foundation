@@ -10,7 +10,7 @@ namespace com.ktgame.foundation.utils
     [CreateAssetMenu(fileName = "BuildInfoSettings", menuName = "Build info settings")]
     public class BuildInfo : ScriptableObject
     {
-        public static BuildInfo Instance => _instance == null ? LoadInfo() : _instance;
+        public static BuildInfo Instance => _instance ??= LoadInfo();
         private static BuildInfo _instance;
 
         public string Version;

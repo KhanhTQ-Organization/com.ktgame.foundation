@@ -27,7 +27,7 @@ namespace com.ktgame.foundation.patterns.behavioral.observer
         /// <summary> Notifies all its observers. </summary>
         protected void Notify()
         {
-            for (int i = 0; i < observers.Count; ++i)
+            for (int i = observers.Count - 1; i >= 0; --i)
                 observers[i].OnNotify();
         }
     }
@@ -56,7 +56,7 @@ namespace com.ktgame.foundation.patterns.behavioral.observer
         /// <summary> Notifies all its observers. </summary>
         protected void Notify(T value)
         {
-            for (int i = 0; i < observers.Count; ++i)
+            for (int i = observers.Count - 1; i >= 0; --i)
                 observers[i].OnNotify(value);
         }
     }
@@ -85,7 +85,7 @@ namespace com.ktgame.foundation.patterns.behavioral.observer
         /// <summary> Notifies all its observers. </summary>
         protected void Notify(T0 value0, T1 value1)
         {
-            for (int i = 0; i < observers.Count; ++i)
+            for (int i = observers.Count - 1; i >= 0; --i)
                 observers[i].OnNotify(value0, value1);
         }
     }
@@ -114,7 +114,7 @@ namespace com.ktgame.foundation.patterns.behavioral.observer
         /// <summary> Notifies all its observers. </summary>
         protected void Notify(T0 value0, T1 value1, T2 value2)
         {
-            for (int i = 0; i < observers.Count; ++i)
+            for (int i = observers.Count - 1; i >= 0; --i)
                 observers[i].OnNotify(value0, value1, value2);
         }
     }

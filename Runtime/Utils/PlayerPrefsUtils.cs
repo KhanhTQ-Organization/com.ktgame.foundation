@@ -173,7 +173,15 @@ namespace com.ktgame.foundation.utils
         /// <param name="value">Value</param>
         public static void SetColor(string key, Color value) => PlayerPrefs.SetString(Prefix(key), ColorExtensions.ToString(value));
 
-        private static string Prefix(string key) =>
-            string.IsNullOrEmpty(Application.productName) == false ? $"{Application.productName}.{key}" : key;
+        private static string _productNamePrefix;
+
+        private static string Prefix(string key)
+        {
+            if (_productNamePrefix == null)
+            {
+                _productNamePrefix = string.IsNullOrEmpty(Application.productName) ? "" : Application.productName + ".";
+            }
+            return _productNamePrefix + key;
+        }
     }
 }

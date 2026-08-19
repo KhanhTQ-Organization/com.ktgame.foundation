@@ -26,9 +26,12 @@ namespace com.ktgame.foundation.patterns.creational.singleton
             if (instance is null)
             {
                 GameObject ownerObject = new GameObject(typeof(T).Name);
-                DontDestroyOnLoad(ownerObject);
                 instance = ownerObject.AddComponent<T>();
             }
+
+            // Ensure the object is at the root level before calling DontDestroyOnLoad
+            instance.transform.SetParent(null);
+            DontDestroyOnLoad(instance.gameObject);
 
             return instance;
         }

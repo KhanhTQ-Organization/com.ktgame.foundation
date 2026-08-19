@@ -6,37 +6,37 @@ namespace com.ktgame.foundation.math
     public static class MathConstants
     {
         /// <summary> The ratio of a circle's circumference to its diameter </summary>
-        public static readonly float Pi = 3.14159265358979f;
+        public const float Pi = 3.14159265358979f;
 
         /// <summary> Pi / 2 </summary>
-        public static readonly float PiHalf = Pi * 0.5f;
+        public const float PiHalf = Pi * 0.5f;
 
         /// <summary> Pi * 2 </summary>
-        public static readonly float Pi2 = Pi * 2.0f;
+        public const float Pi2 = Pi * 2.0f;
 
         /// <summary> Euler's number </summary>
-        public static readonly float E = 2.71828182846f;
+        public const float E = 2.71828182846f;
 
         /// <summary> The ratio between circumference and radius (2 * Pi) </summary>
-        public static readonly float Tau = 6.28318530717959f;
+        public const float Tau = 6.28318530717959f;
 
         /// <summary> The ratio of their sum to the larger of the two quantities </summary>
-        public static readonly float GoldenRatio = 1.61803398875f;
+        public const float GoldenRatio = 1.61803398875f;
 
         /// <summary> Multiplying to convert from degrees to radians </summary>
-        public static readonly float Deg2Rad = Tau / 360.0f;
+        public const float Deg2Rad = Tau / 360.0f;
 
         /// <summary> Multiplying to convert from radians to degrees </summary>
-        public static readonly float Rad2Deg = 360.0f / Tau;
+        public const float Rad2Deg = 360.0f / Tau;
 
         /// <summary>1.0 / 3.0</summary>
-        public static readonly float OneThird = 0.333333333333333f;
+        public const float OneThird = 0.333333333333333f;
 
         /// <summary>2.0 / 3.0</summary>
-        public static readonly float TwoThirds = 0.666666666666667f;
+        public const float TwoThirds = 0.666666666666667f;
 
         /// <summary>1.0 / 6.0</summary>
-        public static readonly float OneSixth = 0.166666666666667f;
+        public const float OneSixth = 0.166666666666667f;
 
         /// <summary>Using float.epsilon can cause precision problems in Unity.</summary>
         public const float Epsilon = 1.4E-32f;

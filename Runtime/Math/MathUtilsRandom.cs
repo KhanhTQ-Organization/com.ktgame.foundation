@@ -72,16 +72,23 @@ namespace com.ktgame.foundation.math
         
         public static int RandomWeighted<T>(IList<T> weighList) where T : IWeighRandom
         {
+            if (weighList == null || weighList.Count == 0)
+            {
+                return -1;
+            }
+
             var sumChance = 0f;
             foreach (var random in weighList)
             {
                 sumChance += random.Ratio;
             }
 
+            if (sumChance <= 0f)
+            {
+                return 0; // Fallback if all weights are zero or negative
+            }
+
             var rand = UnityRandom.Range(0, sumChance);
-            var minRange = 0f;
-            var maxRange = 0f;
-            var result = 0;
 
             for (var index = 0; index < weighList.Count; ++index)
             {
@@ -90,17 +97,16 @@ namespace com.ktgame.foundation.math
                     continue;
                 }
 
-                minRange = maxRange;
-                maxRange = minRange + weighList[index].Ratio;
-
-                if (rand >= minRange && rand <= maxRange)
+                if (rand < weighList[index].Ratio)
                 {
-                    result = index;
-                    break;
+                    return index;
                 }
+
+                rand -= weighList[index].Ratio;
             }
 
-            return result;
+            // Fallback for floating point imprecision
+            return weighList.Count - 1;
         }
     }
 }

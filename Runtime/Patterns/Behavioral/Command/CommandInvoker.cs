@@ -5,8 +5,11 @@ namespace com.ktgame.foundation.patterns.behavioral.command
     /// <summary> Asks the command to carry out the request. </summary>
     public class CommandInvoker
     {
-        private readonly Stack<ICommand> undo = new Stack<ICommand>();
-        private readonly Stack<ICommand> redo = new Stack<ICommand>();
+        private readonly List<ICommand> undo = new List<ICommand>();
+        private readonly List<ICommand> redo = new List<ICommand>();
+
+        /// <summary> Maximum number of commands to keep in history to prevent memory leaks. </summary>
+        public int MaxHistory { get; set; } = 50;
 
         /// <summary> Execute a command and add it to the undo redo stack if success. </summary>
         /// <param name="command"></param>
@@ -15,7 +18,11 @@ namespace com.ktgame.foundation.patterns.behavioral.command
         {
             if (command.OnExecute() == true)
             {
-                undo.Push(command);
+                undo.Add(command);
+                if (undo.Count > MaxHistory)
+                {
+                    undo.RemoveAt(0); // Remove oldest command to free memory
+                }
                 redo.Clear();
                 return true;
             }
@@ -28,9 +35,11 @@ namespace com.ktgame.foundation.patterns.behavioral.command
         {
             if (undo.Count > 0)
             {
-                ICommand executed = undo.Pop();
+                ICommand executed = undo[undo.Count - 1];
+                undo.RemoveAt(undo.Count - 1);
+                
                 executed.OnUndo();
-                redo.Push(executed);
+                redo.Add(executed);
             }
             else
             {
@@ -43,9 +52,13 @@ namespace com.ktgame.foundation.patterns.behavioral.command
         {
             if (redo.Count > 0)
             {
-                ICommand undone = redo.Pop();
-                undone.OnExecute();
-                undo.Push(undone);
+                ICommand undone = redo[redo.Count - 1];
+                redo.RemoveAt(redo.Count - 1);
+                
+                if (undone.OnExecute() == true)
+                {
+                    undo.Add(undone);
+                }
             }
             else
             {
