@@ -6,10 +6,8 @@ namespace com.ktgame.foundation.patterns.creational.singleton
     [DisallowMultipleComponent]
     public abstract class MonoBehaviourSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
-        /// <summary> Instance. </summary>
         public static T Instance => Lazy.Value;
 
-        /// <summary> Instance created? </summary>
         public static bool IsCreated => lazy != null && lazy.IsValueCreated == true;
 
         private static Lazy<T> Lazy
@@ -20,9 +18,32 @@ namespace com.ktgame.foundation.patterns.creational.singleton
 
         private static Lazy<T> lazy;
 
-        private static T LazyCreate() => FindObjectOfType<T>(true) ?? new GameObject(typeof(T).Name).AddComponent<T>();
+        private static T LazyCreate()
+        {
+            var instance = SingletonUtility.FindExisting<T>();
+            return instance != null ? instance : new GameObject(typeof(T).Name).AddComponent<T>();
+        }
 
-        /// <remarks> Don't forget to call 'base.OnDestroy()' in the overloaded method. </remarks>
-        protected virtual void OnDestroy() => Lazy = null;
+        protected virtual void OnDestroy()
+        {
+            // Chỉ reset khi chính instance đang dùng bị hủy (bản cũ reset cả khi một bản trùng bị hủy).
+            if (lazy != null && lazy.IsValueCreated && ReferenceEquals(lazy.Value, this))
+            {
+                Lazy = null;
+            }
+        }
+    }
+
+    internal static class SingletonUtility
+    {
+        public static T FindExisting<T>() where T : UnityEngine.Object
+        {
+#if UNITY_2023_1_OR_NEWER
+            // FindObjectOfType đã lỗi thời từ Unity 2023.1.
+            return UnityEngine.Object.FindFirstObjectByType<T>(FindObjectsInactive.Include);
+#else
+            return UnityEngine.Object.FindObjectOfType<T>(true);
+#endif
+        }
     }
 }

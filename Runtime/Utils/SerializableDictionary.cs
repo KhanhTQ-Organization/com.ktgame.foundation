@@ -66,6 +66,12 @@ namespace com.ktgame.foundation.utils
 				int length = keys.Length;
 				for (int i = 0; i < length; ++i)
 				{
+					// Key null (ví dụ object key chưa gán trong Inspector) trước đây ném ArgumentNullException khi load.
+					if (keys[i] == null)
+					{
+						continue;
+					}
+
 					dictionary[keys[i]] = GetValue(values, i);
 				}
 

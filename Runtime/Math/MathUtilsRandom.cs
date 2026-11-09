@@ -9,7 +9,7 @@ namespace com.ktgame.foundation.math
     {
         // Int
 
-        /// <summary> A random int within [min..max] (range is inclusive). </summary>
+        /// <summary> A random int within [min..max) (max is EXCLUSIVE, như UnityEngine.Random.Range(int, int)). </summary>
         /// <param name="min">Minimo</param>
         /// <param name="max">Maximo</param>
         /// <returns>Number</returns>
@@ -77,10 +77,17 @@ namespace com.ktgame.foundation.math
                 return -1;
             }
 
+            // Chỉ cộng trọng số dương: trọng số âm trước đây làm giảm tổng nên phân phối bị lệch.
             var sumChance = 0f;
-            foreach (var random in weighList)
+            var lastPositive = -1;
+            for (var index = 0; index < weighList.Count; ++index)
             {
-                sumChance += random.Ratio;
+                var ratio = weighList[index].Ratio;
+                if (ratio > 0f)
+                {
+                    sumChance += ratio;
+                    lastPositive = index;
+                }
             }
 
             if (sumChance <= 0f)
@@ -105,8 +112,8 @@ namespace com.ktgame.foundation.math
                 rand -= weighList[index].Ratio;
             }
 
-            // Fallback for floating point imprecision
-            return weighList.Count - 1;
+            // Sai số làm tròn: trả về phần tử có trọng số dương cuối cùng (trước đây có thể trả về phần tử trọng số 0).
+            return lastPositive;
         }
     }
 }

@@ -19,8 +19,7 @@ namespace com.ktgame.foundation.editor
                 buildInfo.BuildId = GetBuildId();
                 Debug.Log($"Build Info: {buildInfo.Version} - {buildInfo.BuildId}");
                 EditorUtility.SetDirty(buildInfo);
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
+                AssetDatabase.SaveAssetIfDirty(buildInfo);
             }
         }
 

@@ -20,9 +20,13 @@ namespace com.ktgame.foundation.extensions.csharp
         /// <returns>True or false</returns>
         public static bool ToBoolean(this string self)
         {
+            if (string.IsNullOrEmpty(self))
+                return false;
+
+            var value = self.Trim();
             for (int i = 0; i < TrueValues.Length; ++i)
             {
-                if (TrueValues[i].Equals(self.ToLowerInvariant()) == true)
+                if (string.Equals(TrueValues[i], value, StringComparison.OrdinalIgnoreCase))
                     return true;
             }
 
@@ -63,103 +67,104 @@ namespace com.ktgame.foundation.extensions.csharp
         /// <returns>Vector2</returns>
         public static Vector2 ToVector2(this string self)
         {
-            Vector3 result = Vector3.zero;
-            string[] args = self.Replace("f", string.Empty).Split(',');
-            if (args.Length == 2)
-            {
-                float.TryParse(args[0], NumberStyles.Float, CultureInfo.InvariantCulture, out result.x);
-                float.TryParse(args[1], NumberStyles.Float, CultureInfo.InvariantCulture, out result.y);
-            }
-
-            return result;
+            var values = new float[2];
+            return TryParseFloats(self, values, values.Length) ? new Vector2(values[0], values[1]) : Vector2.zero;
         }
 
         /// <summary> Try to converts to Vector3. </summary>
         /// <returns>Vector3</returns>
         public static Vector3 ToVector3(this string self)
         {
-            Vector3 result = Vector3.zero;
-            string[] args = self.Replace("f", string.Empty).Split(',');
-            if (args.Length == 3)
-            {
-                float.TryParse(args[0], NumberStyles.Float, CultureInfo.InvariantCulture, out result.x);
-                float.TryParse(args[1], NumberStyles.Float, CultureInfo.InvariantCulture, out result.y);
-                float.TryParse(args[2], NumberStyles.Float, CultureInfo.InvariantCulture, out result.z);
-            }
-
-            return result;
+            var values = new float[3];
+            return TryParseFloats(self, values, values.Length) ? new Vector3(values[0], values[1], values[2]) : Vector3.zero;
         }
 
         /// <summary> Try to converts to Vector4. </summary>
         /// <returns>Vector4</returns>
         public static Vector4 ToVector4(this string self)
         {
-            Vector4 result = Vector4.zero;
-            string[] args = self.Replace("f", string.Empty).Split(',');
-            if (args.Length == 4)
-            {
-                float.TryParse(args[0], NumberStyles.Float, CultureInfo.InvariantCulture, out result.x);
-                float.TryParse(args[1], NumberStyles.Float, CultureInfo.InvariantCulture, out result.y);
-                float.TryParse(args[2], NumberStyles.Float, CultureInfo.InvariantCulture, out result.z);
-                float.TryParse(args[3], NumberStyles.Float, CultureInfo.InvariantCulture, out result.w);
-            }
-
-            return result;
+            var values = new float[4];
+            return TryParseFloats(self, values, values.Length) ? new Vector4(values[0], values[1], values[2], values[3]) : Vector4.zero;
         }
 
         /// <summary> Try to converts to Quaternion. </summary>
         /// <returns>Quaternion</returns>
         public static Quaternion ToQuaternion(this string self)
         {
-            Quaternion result = Quaternion.identity;
-            string[] args = self.Replace("f", string.Empty).Split(',');
-            if (args.Length == 4)
+            var values = new float[4];
+            return TryParseFloats(self, values, values.Length)
+                ? new Quaternion(values[0], values[1], values[2], values[3])
+                : Quaternion.identity;
+        }
+
+        // Đọc "a,b,c" (InvariantCulture). Chấp nhận thêm dạng Unity ToString: "(1.0, 2.0)", "RGBA(0.1, 0.2, 0.3, 1.0)"
+        // và hậu tố "f" ("1.5f"). Trả false nếu số phần tử không khớp hoặc có giá trị không đọc được.
+        private static bool TryParseFloats(string text, float[] values, int count)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return false;
+
+            var start = text.IndexOf('(');
+            var end = text.LastIndexOf(')');
+            if (start >= 0 && end > start)
+                text = text.Substring(start + 1, end - start - 1);
+
+            var args = text.Split(',');
+            if (args.Length != count)
+                return false;
+
+            for (var i = 0; i < count; i++)
             {
-                float.TryParse(args[0], NumberStyles.Float, CultureInfo.InvariantCulture, out result.x);
-                float.TryParse(args[1], NumberStyles.Float, CultureInfo.InvariantCulture, out result.y);
-                float.TryParse(args[2], NumberStyles.Float, CultureInfo.InvariantCulture, out result.z);
-                float.TryParse(args[3], NumberStyles.Float, CultureInfo.InvariantCulture, out result.w);
+                var arg = args[i].Trim();
+                if (arg.EndsWith("f", StringComparison.OrdinalIgnoreCase))
+                    arg = arg.Substring(0, arg.Length - 1);
+
+                if (float.TryParse(arg, NumberStyles.Float, CultureInfo.InvariantCulture, out values[i]) == false)
+                    return false;
             }
 
-            return result;
+            return true;
         }
 
         /// <summary> Converts hex string color (0xFF00FF, #FF00FF, commas) to color. </summary>
         /// <returns>Color</returns>
         public static Color ToColor(this string self)
         {
-            Color color = new Color();
+            // Trả về màu mặc định (0,0,0,0) nếu không đọc được, không ném exception.
+            if (string.IsNullOrWhiteSpace(self))
+                return new Color();
 
-            if (self.Contains("0x") == true || self.Contains("#") == true)
+            var text = self.Trim();
+
+            if (text.StartsWith("0x", StringComparison.OrdinalIgnoreCase) || text.StartsWith("#"))
             {
-                self = self.Replace("0x", string.Empty); // 0xFFFFFF?
-                self = self.Replace("#", string.Empty); // #FFFFFF?
-
-                byte a = 255;
-                byte r = byte.Parse(self.Substring(0, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-                byte g = byte.Parse(self.Substring(2, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-                byte b = byte.Parse(self.Substring(4, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-
-                if (self.Length == 8)
-                    a = byte.Parse(self.Substring(6, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-
-                color = new Color32(r, g, b, a);
-            }
-            else if (self.Contains(",") == true)
-            {
-                string[] channels = self.Substring(1, self.Length - 2).Split(',');
-                if (channels.Length >= 3)
+                // 0xRRGGBB, #RRGGBB, #RRGGBBAA
+                var hex = text.StartsWith("#") ? text.Substring(1) : text.Substring(2);
+                if ((hex.Length == 6 || hex.Length == 8)
+                    && byte.TryParse(hex.Substring(0, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var r)
+                    && byte.TryParse(hex.Substring(2, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var g)
+                    && byte.TryParse(hex.Substring(4, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var b))
                 {
-                    color.r = float.Parse(channels[0]);
-                    color.g = float.Parse(channels[1]);
-                    color.b = float.Parse(channels[2]);
+                    byte a = 255;
+                    if (hex.Length == 8 && byte.TryParse(hex.Substring(6, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var parsedAlpha))
+                        a = parsedAlpha;
 
-                    if (channels.Length == 4)
-                        color.a = float.Parse(channels[3]);
+                    return new Color32(r, g, b, a);
                 }
+
+                return new Color();
             }
 
-            return color;
+            // "r,g,b,a" (ColorExtensions.ToString), "r,g,b", "RGBA(r, g, b, a)" hoặc "(r, g, b, a)".
+            var rgba = new float[4];
+            if (TryParseFloats(text, rgba, 4))
+                return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
+
+            var rgb = new float[3];
+            if (TryParseFloats(text, rgb, 3))
+                return new Color(rgb[0], rgb[1], rgb[2]);
+
+            return new Color();
         }
 
         /// <summary> To hash algorithm called MD5. </summary>
@@ -268,11 +273,20 @@ namespace com.ktgame.foundation.extensions.csharp
         /// only Latin letters and numbers and of a certain length.
         /// </summary>
         /// <returns>True/false</returns>
-        public static bool IsValidLatinUsername(this string self, int min = 6, int max = 12) => Regex.IsMatch(self, $"{UserNamePattern}{{{min},{max}}}");
+        public static bool IsValidLatinUsername(this string self, int min = 6, int max = 12)
+        {
+            // min/max là độ dài cả chuỗi. Bản cũ thiếu "$" nên chuỗi dài hơn max hoặc có ký tự lạ phía sau vẫn hợp lệ.
+            if (string.IsNullOrEmpty(self) || min < 1 || max < min)
+                return false;
+
+            return Regex.IsMatch(self, $"{UserNamePattern}{{{min - 1},{max - 1}}}$");
+        }
 
         /// <summary> Is a valid email. </summary>
         /// <returns>True/false</returns>
-        public static bool IsValidEmail(this string self) => Regex.IsMatch(self, @"[a-zA-Z0-9\.-_]+@[a-zA-Z0-9\.-_]+");
+        public static bool IsValidEmail(this string self) =>
+            // Bản cũ không có neo ^$ và "\.-_" là một khoảng ký tự, nên "@@@" vẫn hợp lệ.
+            string.IsNullOrEmpty(self) == false && Regex.IsMatch(self, @"^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$");
 
         /// <summary> Calculate hash number from text. </summary>
         /// <returns>Hash number (ulong)</returns>
@@ -380,7 +394,16 @@ namespace com.ktgame.foundation.extensions.csharp
                 memoryStream.Position = (long)0;
                 using (GZipStream gZipStream = new GZipStream(memoryStream, CompressionMode.Decompress))
                 {
-                    gZipStream.Read(numArray1, 0, numArray1.Length);
+                    // Stream.Read có thể trả về ít hơn số byte yêu cầu: đọc lặp tới khi đủ.
+                    int offset = 0;
+                    while (offset < numArray1.Length)
+                    {
+                        int read = gZipStream.Read(numArray1, offset, numArray1.Length - offset);
+                        if (read <= 0)
+                            break;
+
+                        offset += read;
+                    }
                 }
 
                 decompressed = Encoding.UTF8.GetString(numArray1);
@@ -472,8 +495,11 @@ namespace com.ktgame.foundation.extensions.csharp
             int m = comparison.Length;
             int[,] d = new int[n + 1, m + 1];
 
-            if (n == 0 || m == 0)
+            if (n == 0)
                 return m;
+
+            if (m == 0)
+                return n;
 
             for (int i = 0; i <= n; d[i, 0] = i++)
             {

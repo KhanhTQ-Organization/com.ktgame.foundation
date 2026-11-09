@@ -19,9 +19,6 @@ namespace com.ktgame.extensions.floats
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static float Clamp01Fast(this float v) => v < 0f ? 0f : (v > 1f ? 1f : v);
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static float Snap(this float v, float step) => step > 0f ? Mathf.Round(v / step) * step : v;
 #endregion
 
 #region ===== Compare (IMPORTANT) =====
@@ -137,8 +134,6 @@ namespace com.ktgame.extensions.floats
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int RoundToIntFast(this float v) => (int)Math.Round(v);
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static float Frac(this float v) => v - Mathf.Floor(v);
 #endregion
 
 #region ===== Formatting =====

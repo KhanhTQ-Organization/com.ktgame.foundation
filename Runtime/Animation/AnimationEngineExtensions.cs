@@ -5,9 +5,6 @@ namespace com.ktgame.foundation.animation
 {
     public static class AnimationEngineExtensions
     {
-        /// <summary>
-        /// Plays an animation and asynchronously waits for it to complete.
-        /// </summary>
         public static async UniTask PlayAsync(
             this IAnimationEngine engine,
             string animName,
@@ -18,15 +15,15 @@ namespace com.ktgame.foundation.animation
             CancellationToken cancellationToken = default)
         {
             if (engine == null) return;
-
-            // Use a UniTaskCompletionSource to await the exact Complete event callback
+            
             var tcs = new UniTaskCompletionSource();
-
-            // Define the callback
+            var completed = false;
+            
             AnimationDelegate onComplete = (track) =>
             {
                 if (track.Name == animName)
                 {
+                    completed = true;
                     tcs.TrySetResult();
                 }
             };
@@ -37,12 +34,19 @@ namespace com.ktgame.foundation.animation
             {
                 engine.Play(animName, loop, restart, trackIndex, mixDuration);
 
-                // Wait until either the animation finishes or cancellation is requested
-                await tcs.Task.AttachExternalCancellation(cancellationToken);
+                if (trackIndex == 0)
+                {
+                    var interrupted = UniTask.WaitUntil(() => completed || engine.CurrentAnimationName != animName,
+                        cancellationToken: cancellationToken);
+                    await UniTask.WhenAny(tcs.Task, interrupted);
+                }
+                else
+                {
+                    await tcs.Task.AttachExternalCancellation(cancellationToken);
+                }
             }
             finally
             {
-                // Guarantee cleanup to prevent memory leaks if cancelled or exception thrown
                 engine.UnsubcribeComplete(onComplete);
             }
         }

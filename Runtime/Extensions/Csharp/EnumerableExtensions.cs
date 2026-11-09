@@ -71,7 +71,7 @@ namespace com.ktgame.foundation.extensions.csharp
         /// <param name="b">Value</param>
         /// <param name="epsilon">Difference range</param>
         /// <returns>True/false</returns>
-        public static bool NearlyEquals(this float a, float b, float epsilon = MathConstants.Epsilon) => Mathf.Abs(a - b) < epsilon;
+        public static bool NearlyEquals(this float a, float b, float epsilon = MathConstants.ComparisonEpsilon) => Mathf.Abs(a - b) < epsilon;
 
         /// <summary> Convert to string using CultureInfo.InvariantCulture. </summary>
         /// <param name="value">Value</param>

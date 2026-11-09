@@ -37,7 +37,7 @@ namespace com.ktgame.foundation
             public static readonly bool DrawInGameView = true;
 
             public static readonly int Capacity = 5000;
-            public static readonly string Profiler = "com.unimob.foundation.DebugDraw";
+            public static readonly string Profiler = "com.ktgame.foundation.DebugDraw";
             public static readonly int TextCapacity = 100;
             public static readonly float Transparency = 0.7f;
             public static readonly float OccludedColor = 0.1f;

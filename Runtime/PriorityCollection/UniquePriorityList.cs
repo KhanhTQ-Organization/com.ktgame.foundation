@@ -17,12 +17,19 @@ namespace com.ktgame.foundation.priorityCollection
 		private readonly HashSet<T> _unique = new HashSet<T>();
 		private readonly LinkedList<Node> _nodes = new LinkedList<Node>();
 
-		public IEnumerator<T> GetEnumerator()
+		/// <summary>
+		/// Duyệt theo thứ tự priority, không cấp phát (struct enumerator).
+		/// Được phép Add/Remove trong lúc duyệt: phần tử bị gỡ mà chưa duyệt tới sẽ bị bỏ qua,
+		/// phần tử thêm vào phía sau vị trí hiện tại sẽ được duyệt. Bản cũ ném InvalidOperationException.
+		/// </summary>
+		public Enumerator GetEnumerator()
 		{
-			foreach (var node in _nodes)
-			{
-				yield return node.Item;
-			}
+			return new Enumerator(_nodes);
+		}
+
+		IEnumerator<T> IEnumerable<T>.GetEnumerator()
+		{
+			return GetEnumerator();
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()
@@ -31,6 +38,11 @@ namespace com.ktgame.foundation.priorityCollection
 		}
 
 		public int Count => _nodes.Count;
+
+		public bool Contains(T item)
+		{
+			return _unique.Contains(item);
+		}
 
 		/// <summary>
 		/// Add objects based on priority.
@@ -250,7 +262,65 @@ namespace com.ktgame.foundation.priorityCollection
 			}
 		}
 
-		private readonly struct Node
+		public struct Enumerator : IEnumerator<T>
+		{
+			private readonly LinkedList<Node> _list;
+			private LinkedListNode<Node> _current;
+			private LinkedListNode<Node> _next;
+			private bool _started;
+
+			internal Enumerator(LinkedList<Node> list)
+			{
+				_list = list;
+				_current = null;
+				_next = null;
+				_started = false;
+			}
+
+			public T Current => _current != null ? _current.Value.Item : default;
+
+			object IEnumerator.Current => Current;
+
+			public bool MoveNext()
+			{
+				LinkedListNode<Node> candidate;
+
+				if (_started == false)
+				{
+					_started = true;
+					candidate = _list.First;
+				}
+				else if (_current != null && _current.List == _list)
+				{
+					// Phần tử hiện tại vẫn còn trong danh sách: đi tiếp theo liên kết của nó.
+					candidate = _current.Next;
+				}
+				else if (_next != null && _next.List == _list)
+				{
+					// Phần tử hiện tại vừa bị gỡ: dùng phần tử kế tiếp đã ghi nhớ trước đó.
+					candidate = _next;
+				}
+				else
+				{
+					candidate = null;
+				}
+
+				_current = candidate;
+				_next = candidate?.Next;
+				return candidate != null;
+			}
+
+			public void Reset()
+			{
+				_started = false;
+				_current = null;
+				_next = null;
+			}
+
+			public void Dispose() { }
+		}
+
+		internal readonly struct Node
 		{
 			public readonly T Item;
 

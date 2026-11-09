@@ -1,5 +1,6 @@
 ﻿using com.ktgame.foundation.extensions.csharp;
 using com.ktgame.foundation.math;
+using System.Globalization;
 using UnityEngine;
 
 namespace com.ktgame.foundation.extensions.unity
@@ -47,7 +48,7 @@ namespace com.ktgame.foundation.extensions.unity
         /// <param name="a">The left-hand side of the equality check.</param>
         /// <param name="b">The right-hand side of the equality check.</param>
         /// <returns>True if the values are equal.</returns>
-        public static bool NearlyEquals(this Vector4 a, Vector4 b, float epsilon = MathConstants.Epsilon) => a.x.NearlyEquals(b.x, epsilon) &&
+        public static bool NearlyEquals(this Vector4 a, Vector4 b, float epsilon = MathConstants.ComparisonEpsilon) => a.x.NearlyEquals(b.x, epsilon) &&
             a.y.NearlyEquals(b.y, epsilon) &&
             a.z.NearlyEquals(b.z, epsilon) &&
             a.w.NearlyEquals(b.w, epsilon);
@@ -71,6 +72,8 @@ namespace com.ktgame.foundation.extensions.unity
         /// <summary> Vector4 to string. </summary>
         /// <param name="self">Value</param>
         /// <returns>string</returns>
-        public static string ToString(this Vector4 self) => $"{self.x},{self.y},{self.z},{self.w}";
+        public static string ToString(this Vector4 self) =>
+            string.Join(",", self.x.ToString(CultureInfo.InvariantCulture), self.y.ToString(CultureInfo.InvariantCulture),
+                self.z.ToString(CultureInfo.InvariantCulture), self.w.ToString(CultureInfo.InvariantCulture));
     }
 }

@@ -58,6 +58,15 @@ namespace com.ktgame.foundation.patterns.behavioral.command
                 if (undone.OnExecute() == true)
                 {
                     undo.Add(undone);
+                    if (undo.Count > MaxHistory)
+                    {
+                        undo.RemoveAt(0);
+                    }
+                }
+                else
+                {
+                    // Thực thi lại thất bại: trả lệnh về stack redo thay vì làm mất.
+                    redo.Add(undone);
                 }
             }
             else

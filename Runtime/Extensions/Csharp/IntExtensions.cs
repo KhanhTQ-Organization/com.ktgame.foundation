@@ -118,9 +118,11 @@ namespace com.ktgame.foundation.extensions.csharp
         /// <returns>Layer included</returns>
         public static bool IsInLayerMask(this int self, string layerName)
         {
-            int layermask = LayerMask.NameToLayer(layerName);
+            // NameToLayer trả về chỉ số layer, không phải mask. Bản cũ dùng nó như mask nên kết quả sai
+            // (ví dụ layer 0 bị coi là thuộc "UI").
+            int layer = LayerMask.NameToLayer(layerName);
 
-            return layermask == (layermask | (1 << self));
+            return layer >= 0 && layer == self;
         }
 
         /// <summary> Bytes to a text string. </summary>
@@ -128,14 +130,21 @@ namespace com.ktgame.foundation.extensions.csharp
         /// <returns>String</returns>
         public static string BytesToHumanReadable(this int self)
         {
-            if (self < 0)
-                return $"-{BytesToHumanReadable(-self)}";
-
             if (self == 0)
                 return "0 bytes";
 
+            // Dùng long: -int.MinValue tràn số và trước đây gây đệ quy vô hạn (StackOverflow).
+            long value = self;
+            if (value < 0)
+                return $"-{BytesToHumanReadable(-value)}";
+
+            return BytesToHumanReadable(value);
+        }
+
+        private static string BytesToHumanReadable(long self)
+        {
             int mag = (int)Math.Log(self, 1024);
-            float adjustedSize = self / Mathf.Pow(1024, mag);
+            float adjustedSize = (float)(self / Math.Pow(1024, mag));
 
             return $"{adjustedSize.ToInvariantCulture()} {SizeSuffixes[mag]}";
         }
@@ -148,6 +157,19 @@ namespace com.ktgame.foundation.extensions.csharp
         /// <summary> Returns the number of digits in the number. </summary>
         /// <param name="self">Value.</param>
         /// <returns>The number of digits in the number.</returns>
-        public static int NumDigits(this int self) => Mathf.FloorToInt(Mathf.Log10((float)self.Abs()) + 1.0f);
+        public static int NumDigits(this int self)
+        {
+            // Đếm bằng số nguyên: bản cũ dùng Log10 trên float nên NumDigits(0) = int.MinValue và
+            // NumDigits(999999999) = 10 (float làm tròn lên 1e9). Dấu âm không được tính.
+            long value = Math.Abs((long)self);
+            int digits = 1;
+            while (value >= 10)
+            {
+                value /= 10;
+                digits++;
+            }
+
+            return digits;
+        }
     }
 }

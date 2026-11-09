@@ -1,4 +1,5 @@
 using com.ktgame.foundation.math;
+using System.Globalization;
 using UnityEngine;
 
 namespace com.ktgame.foundation.extensions.unity
@@ -76,45 +77,49 @@ namespace com.ktgame.foundation.extensions.unity
         /// <summary> Color to string. </summary>
         /// <param name="self">Value</param>
         /// <returns></returns>
-        public static string ToString(this Color self) => $"{self.r},{self.g},{self.b},{self.a}";
+        public static string ToString(this Color self) =>
+            string.Join(",", self.r.ToString(CultureInfo.InvariantCulture), self.g.ToString(CultureInfo.InvariantCulture),
+                self.b.ToString(CultureInfo.InvariantCulture), self.a.ToString(CultureInfo.InvariantCulture));
 
         /// <summary> Brightness correction. </summary>
         /// <param name="correctionFactor">Brightness correction factor [-1 - 1]</param>
         /// <returns>Color with corrected brightness.</returns>
         public static Color ChangeBrightness(this Color self, float correctionFactor)
         {
-            float red = (float)self.r;
-            float green = (float)self.g;
-            float blue = (float)self.b;
+            correctionFactor = Mathf.Clamp(correctionFactor, -1.0f, 1.0f);
+
+            float red = self.r;
+            float green = self.g;
+            float blue = self.b;
 
             if (correctionFactor < 0.0f)
             {
-                correctionFactor = 1.0f + correctionFactor;
-                red *= correctionFactor;
-                green *= correctionFactor;
-                blue *= correctionFactor;
+                float factor = 1.0f + correctionFactor;
+                red *= factor;
+                green *= factor;
+                blue *= factor;
             }
             else
             {
-                red = (255 - red) * correctionFactor + red;
-                green = (255 - green) * correctionFactor + green;
-                blue = (255 - blue) * correctionFactor + blue;
+                red += (1.0f - red) * correctionFactor;
+                green += (1.0f - green) * correctionFactor;
+                blue += (1.0f - blue) * correctionFactor;
             }
 
-            return new Color(red / 255, green / 255, blue / 255, self.a);
+            return new Color(red, green, blue, self.a);
         }
 
         /// <summary> Is it almost black? </summary>
         /// <returns>True if it is almost black.</returns>
-        public static bool IsApproximatelyBlack(this Color self) => self.r <= MathConstants.Epsilon &&
-                                                                    self.g <= MathConstants.Epsilon &&
-                                                                    self.b <= MathConstants.Epsilon;
+        public static bool IsApproximatelyBlack(this Color self) => self.r <= MathConstants.ComparisonEpsilon &&
+                                                                    self.g <= MathConstants.ComparisonEpsilon &&
+                                                                    self.b <= MathConstants.ComparisonEpsilon;
 
         /// <summary> Is it almost white? </summary>
         /// <returns>True if it is almost white.</returns>
-        public static bool IsApproximatelyWhite(this Color self) => self.r >= 1.0f - MathConstants.Epsilon &&
-                                                                    self.g >= 1.0f - MathConstants.Epsilon &&
-                                                                    self.b >= 1.0f - MathConstants.Epsilon;
+        public static bool IsApproximatelyWhite(this Color self) => self.r >= 1.0f - MathConstants.ComparisonEpsilon &&
+                                                                    self.g >= 1.0f - MathConstants.ComparisonEpsilon &&
+                                                                    self.b >= 1.0f - MathConstants.ComparisonEpsilon;
 
         /// <summary> Opaque version of the color. </summary>
         /// <returns>New opaque color.</returns>

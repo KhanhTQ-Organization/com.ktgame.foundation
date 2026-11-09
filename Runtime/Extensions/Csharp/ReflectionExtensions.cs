@@ -44,8 +44,12 @@ namespace com.ktgame.foundation.extensions.csharp
                     object[] attributes = properties[i].GetCustomAttributes(true);
                     for (int j = 0; j < attributes.Length; ++j)
                     {
-                        attribute = attributes[j] as T;
-                        propertyInfo = properties[i];
+                        if (attributes[j] is T match)
+                        {
+                            attribute = match;
+                            propertyInfo = properties[i];
+                            break;
+                        }
                     }
                 }
             }

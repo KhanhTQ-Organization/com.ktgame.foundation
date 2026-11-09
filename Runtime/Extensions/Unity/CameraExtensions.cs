@@ -28,8 +28,13 @@ namespace com.ktgame.foundation.extensions.unity
         /// <summary> Is object visible? </summary>
         /// <param name="renderer">Renderer object.</param>
         /// <returns> True or false. </returns>
-        public static bool IsObjectVisible(this Camera self, Renderer renderer) =>
-            GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(self), renderer.bounds);
+        public static bool IsObjectVisible(this Camera self, Renderer renderer)
+        {
+            GeometryUtility.CalculateFrustumPlanes(self, FrustumPlanes);
+            return GeometryUtility.TestPlanesAABB(FrustumPlanes, renderer.bounds);
+        }
+
+        private static readonly Plane[] FrustumPlanes = new Plane[6];
 
         /// <summary> Is point visible? </summary>
         /// <param name="point">Point.</param>
@@ -37,8 +42,7 @@ namespace com.ktgame.foundation.extensions.unity
         public static bool IsPointVisible(this Camera self, Vector3 point)
         {
             Vector3 p = self.WorldToViewportPoint(point);
-
-            return p.x >= 0.0f && p.x <= 1.0f && p.y >= 0.0f && p.y <= 1.0f;
+            return p.z > 0.0f && p.x >= 0.0f && p.x <= 1.0f && p.y >= 0.0f && p.y <= 1.0f;
         }
 
         /// <summary> Visible rectangle. </summary>

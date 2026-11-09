@@ -52,7 +52,8 @@ namespace com.ktgame.foundation.extensions.unity
 
 		/// <summary> Returns a component of the parent of a GameObject, ignoring itself. </summary>
 		/// <returns>Component</returns>
-		public static T GetComponentInParentIgnoreSelf<T>(this GameObject self) => self.transform.parent.GetComponentInParent<T>();
+		public static T GetComponentInParentIgnoreSelf<T>(this GameObject self) =>
+			self.transform.parent != null ? self.transform.parent.GetComponentInParent<T>() : default;
 
 		/// <summary> Return a list of all child objects. </summary>
 		/// <returns></returns>
@@ -93,11 +94,13 @@ namespace com.ktgame.foundation.extensions.unity
 			{
 				Renderer rend = children[i];
 
-				Material[] mats = new Material[rend.materials.Length];
-				for (int j = 0; j < rend.materials.Length; j++)
+				// Dùng sharedMaterials: đọc renderer.materials sẽ nhân bản toàn bộ material rồi bỏ đi (rò rỉ).
+				int count = rend.sharedMaterials.Length;
+				Material[] mats = new Material[count];
+				for (int j = 0; j < count; j++)
 					mats[j] = newMaterial;
 
-				rend.materials = mats;
+				rend.sharedMaterials = mats;
 			}
 		}
 
@@ -111,23 +114,21 @@ namespace com.ktgame.foundation.extensions.unity
 		/// <summary> Destroy Object. </summary>
 		public static void SafeDestroy<T>(this T self) where T : Object
 		{
-#if UNITY_EDITOR
-			if (Application.isEditor == true)
-				Object.DestroyImmediate(self);
-			else
-#endif
+			// Chỉ DestroyImmediate khi không chạy game (Edit Mode). Trước đây dùng Application.isEditor,
+			// nên trong Play Mode của editor hủy ngay còn trên máy thật hủy cuối frame: hành vi lệch nhau.
+			if (Application.isPlaying)
 				Object.Destroy(self);
+			else
+				Object.DestroyImmediate(self);
 		}
 
 		/// <summary> Destroy GameObject. </summary>
 		public static void SafeDestroy(this GameObject self)
 		{
-#if UNITY_EDITOR
-			if (Application.isEditor == true)
-				Object.DestroyImmediate(self);
-			else
-#endif
+			if (Application.isPlaying)
 				Object.Destroy(self);
+			else
+				Object.DestroyImmediate(self);
 		}
 
 		/// <summary> Destroy component. </summary>

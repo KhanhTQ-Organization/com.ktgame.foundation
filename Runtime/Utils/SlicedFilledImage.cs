@@ -11,8 +11,7 @@ namespace com.ktgame.foundation.utils
 {
 #if UNITY_EDITOR
 	using UnityEditor;
-
-	// Custom Editor to order the variables in the Inspector similar to Image component
+	
 	[CustomEditor(typeof(SlicedFilledImage)), CanEditMultipleObjects]
 	public class SlicedFilledImageEditor : Editor
 	{
@@ -274,15 +273,11 @@ namespace com.ktgame.foundation.utils
 
 			GenerateSlicedFilledSprite(vh);
 		}
-
-		/// <summary>
-		/// Update the renderer's material.
-		/// </summary>
+		
 		protected override void UpdateMaterial()
 		{
 			base.UpdateMaterial();
-
-			// Check if this sprite has an associated alpha texture (generated when splitting RGBA = RGB + A as two textures without alpha)
+			
 			if (activeSprite == null)
 			{
 				canvasRenderer.SetAlphaTexture(null);
@@ -311,8 +306,7 @@ namespace com.ktgame.foundation.utils
 
 				int spriteW = Mathf.RoundToInt(size.x);
 				int spriteH = Mathf.RoundToInt(size.y);
-
-				// Image's dimensions used for drawing. X = left, Y = bottom, Z = right, W = top.
+				
 				Vector4 vertices = new Vector4(
 					rect.x + rect.width * (padding.x / spriteW),
 					rect.y + rect.height * (padding.y / spriteH),
@@ -474,7 +468,7 @@ namespace com.ktgame.foundation.utils
 							sliceStart = 1f - (s_SlicedVertices[y2].y - rectStartPos) * _1OverTotalSize;
 							sliceEnd = 1f - (s_SlicedVertices[y].y - rectStartPos) * _1OverTotalSize;
 							break;
-						default: // Just there to get rid of the "Use of unassigned local variable" compiler error
+						default: 
 							sliceStart = sliceEnd = 0f;
 							break;
 					}
@@ -499,18 +493,14 @@ namespace com.ktgame.foundation.utils
 			for (int axis = 0; axis <= 1; axis++)
 			{
 				float borderScaleRatio;
-
-				// The adjusted rect (adjusted for pixel correctness) may be slightly larger than the original rect.
-				// Adjust the border to match the adjustedRect to avoid small gaps between borders (case 833201).
+				
 				if (originalRect.size[axis] != 0)
 				{
 					borderScaleRatio = adjustedRect.size[axis] / originalRect.size[axis];
 					border[axis] *= borderScaleRatio;
 					border[axis + 2] *= borderScaleRatio;
 				}
-
-				// If the rect is smaller than the combined borders, then there's not room for the borders at their normal size.
-				// In order to avoid artefacts with overlapping borders, we scale the borders down to fit.
+				
 				float combinedBorders = border[axis] + border[axis + 2];
 				if (adjustedRect.size[axis] < combinedBorders && combinedBorders != 0)
 				{
@@ -649,8 +639,7 @@ namespace com.ktgame.foundation.utils
 				return false;
 
 			Rect rect = GetPixelAdjustedRect();
-
-			// Convert to have lower left corner as reference point.
+			
 			local.x += rectTransform.pivot.x * rect.width;
 			local.y += rectTransform.pivot.y * rect.height;
 
@@ -672,12 +661,10 @@ namespace com.ktgame.foundation.utils
 				float lerp = Mathf.InverseLerp(adjustedBorder[i], rect.size[i] - adjustedBorder[i + 2], local[i]);
 				local[i] = Mathf.Lerp(border[i], spriteRect.size[i] - border[i + 2], lerp);
 			}
-
-			// Normalize local coordinates.
+			
 			Rect textureRect = activeSprite.textureRect;
 			Vector2 normalized = new Vector2(local.x / textureRect.width, local.y / textureRect.height);
-
-			// Convert to texture space.
+			
 			float x = Mathf.Lerp(textureRect.x, textureRect.xMax, normalized.x) / activeSprite.texture.width;
 			float y = Mathf.Lerp(textureRect.y, textureRect.yMax, normalized.y) / activeSprite.texture.height;
 
@@ -725,8 +712,7 @@ namespace com.ktgame.foundation.utils
 		{
 			m_FillAmount = Mathf.Clamp01(m_FillAmount);
 		}
-
-		// Whether this is being tracked for Atlas Binding
+		
 		private bool m_Tracked = false;
 
 #if UNITY_2017_4 || UNITY_2018_2_OR_NEWER
@@ -736,6 +722,9 @@ namespace com.ktgame.foundation.utils
 
 		private void TrackImage()
 		{
+			if (m_Tracked)
+				return;
+
 			if (activeSprite != null && activeSprite.texture == null)
 			{
 #if UNITY_2017_4 || UNITY_2018_2_OR_NEWER
@@ -765,9 +754,16 @@ namespace com.ktgame.foundation.utils
 			for (int i = m_TrackedTexturelessImages.Count - 1; i >= 0; i--)
 			{
 				SlicedFilledImage image = m_TrackedTexturelessImages[i];
+				if (image == null)
+				{
+					m_TrackedTexturelessImages.RemoveAt(i);
+					continue;
+				}
+
 				if (spriteAtlas.CanBindTo(image.activeSprite))
 				{
 					image.SetAllDirty();
+					image.m_Tracked = false;
 					m_TrackedTexturelessImages.RemoveAt(i);
 				}
 			}

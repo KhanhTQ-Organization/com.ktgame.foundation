@@ -105,88 +105,52 @@ namespace com.ktgame.foundation
         /// <param name="message">Message</param>
         /// <param name="e">Exception</param>
         [DebuggerStepThrough]
-#if LOGS_DEVELOPMENT
-        [Conditional("DEVELOPMENT")]
-#endif
-#if LOGS_EDITOR
-        [Conditional("UNITY_EDITOR")]
-#endif
         public static void Exception(string message, Exception e = null, [CallerName] string member = "", [CallerPath] string sourceFile = "", [CallerLine] int line = 0)
         {
-            e ??= new Exception($"[{Path.GetFileNameWithoutExtension(sourceFile)}:{member}:{line}] {message}");
-            Debug.LogException(e);
-
-            throw e;
+            throw e ?? new Exception(Format(message, member, sourceFile, line));
         }
+
+        private static string Format(string message, string member, string sourceFile, int line) =>
+            $"[{Path.GetFileNameWithoutExtension(sourceFile)}:{member}:{line}] {message}";
 
         /// <summary> Argument exception and stack trace. </summary>
         /// <param name="message">Message</param>
         [DebuggerStepThrough]
-#if LOGS_DEVELOPMENT
-        [Conditional("DEVELOPMENT")]
-#endif
-#if LOGS_EDITOR
-        [Conditional("UNITY_EDITOR")]
-#endif
         public static void ExceptionArgument(string message, [CallerName] string member = "",
             [CallerPath] string sourceFile = "",
             [CallerLine] int line = 0) =>
-            Exception(message, new ArgumentException(), member, sourceFile, line);
+            throw new ArgumentException(Format(message, member, sourceFile, line));
 
         /// <summary> ArgumentOutOfRange exception and stack trace. </summary>
         /// <param name="message">Message</param>
         [DebuggerStepThrough]
-#if LOGS_DEVELOPMENT
-        [Conditional("DEVELOPMENT")]
-#endif
-#if LOGS_EDITOR
-        [Conditional("UNITY_EDITOR")]
-#endif
         public static void ExceptionArgumentOutOfRange(string message, [CallerName] string member = "",
             [CallerPath] string sourceFile = "",
             [CallerLine] int line = 0) =>
-            Exception(message, new ArgumentOutOfRangeException(), member, sourceFile, line);
+            throw new ArgumentOutOfRangeException(null, Format(message, member, sourceFile, line));
 
         /// <summary> IndexOutOfRange exception and stack trace. </summary>
         /// <param name="message">Message</param>
         [DebuggerStepThrough]
-#if LOGS_DEVELOPMENT
-        [Conditional("DEVELOPMENT")]
-#endif
-#if LOGS_EDITOR
-        [Conditional("UNITY_EDITOR")]
-#endif
         public static void ExceptionIndexOutOfRange(string message, [CallerName] string member = "",
             [CallerPath] string sourceFile = "",
             [CallerLine] int line = 0) =>
-            Exception(message, new IndexOutOfRangeException(), member, sourceFile, line);
+            throw new IndexOutOfRangeException(Format(message, member, sourceFile, line));
 
         /// <summary> ArgumentNull exception and stack trace. </summary>
         /// <param name="message">Message</param>
         [DebuggerStepThrough]
-#if LOGS_DEVELOPMENT
-        [Conditional("DEVELOPMENT")]
-#endif
-#if LOGS_EDITOR
-        [Conditional("UNITY_EDITOR")]
-#endif
         public static void ExceptionArgumentNull(string message, [CallerName] string member = "",
             [CallerPath] string sourceFile = "",
             [CallerLine] int line = 0) =>
-            Exception(message, new ArgumentNullException(), member, sourceFile, line);
+            throw new ArgumentNullException(null, Format(message, member, sourceFile, line));
 
         /// <summary> Key not found exception and stack trace. </summary>
         /// <param name="message">Message</param>
         [DebuggerStepThrough]
-#if LOGS_DEVELOPMENT
-        [Conditional("DEVELOPMENT")]
-#endif
-#if LOGS_EDITOR
-        [Conditional("UNITY_EDITOR")]
-#endif
         public static void ExceptionKeyNotFound(string message, [CallerName] string member = "",
             [CallerPath] string sourceFile = "",
             [CallerLine] int line = 0) =>
-            Exception(message, new KeyNotFoundException(), member, sourceFile, line);
+            throw new KeyNotFoundException(Format(message, member, sourceFile, line));
     }
 }

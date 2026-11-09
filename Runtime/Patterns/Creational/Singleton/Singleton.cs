@@ -8,6 +8,7 @@ namespace com.ktgame.foundation.patterns.creational.singleton
 
         private static readonly Lazy<T> instance = new Lazy<T>(() => new T());
 
-        private Singleton() { }
+        // protected: constructor private khiến không class nào kế thừa được Singleton<T>.
+        protected Singleton() { }
     }
 }

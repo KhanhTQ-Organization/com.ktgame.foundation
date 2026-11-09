@@ -23,6 +23,10 @@ namespace com.ktgame.foundation.utils
         public static void DeleteKey(string key) => PlayerPrefs.DeleteKey(Prefix(key));
 
         /// <summary> Delete all keys. </summary>
+        /// <remarks>
+        /// Xóa TOÀN BỘ PlayerPrefs của ứng dụng, kể cả key không có prefix (PlayerPrefs không cho liệt kê key
+        /// nên không thể chỉ xóa các key của lớp này). Muốn xóa từng key thì dùng DeleteKey.
+        /// </remarks>
         public static void DeleteAll() => PlayerPrefs.DeleteAll();
 
         /// <summary> Returns the value of a PlayerPrefs variable or its default value. </summary>
@@ -77,7 +81,15 @@ namespace com.ktgame.foundation.utils
         {
             string value = PlayerPrefs.GetString(Prefix(key), null);
 
-            if (string.IsNullOrEmpty(value) == false && DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result) == true)
+            if (string.IsNullOrEmpty(value))
+                return defaultValue;
+
+            // Định dạng mới (round-trip "o"): giữ mili giây và DateTimeKind (UTC/Local).
+            if (DateTime.TryParseExact(value, "o", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var result))
+                return result;
+
+            // Dữ liệu cũ ("MM/dd/yyyy HH:mm:ss", InvariantCulture).
+            if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
                 return result;
 
             return defaultValue;
@@ -87,7 +99,8 @@ namespace com.ktgame.foundation.utils
         /// <param name="key">Key name</param>
         /// <param name="value">Value</param>
         public static void SetDateTime(string key, DateTime value) =>
-            PlayerPrefs.SetString(Prefix(key), value.ToString(CultureInfo.InvariantCulture));
+            // "o": định dạng round-trip, giữ mili giây và DateTimeKind (bản cũ làm mất cả hai).
+            PlayerPrefs.SetString(Prefix(key), value.ToString("o", CultureInfo.InvariantCulture));
 
         /// <summary> Returns the value of a PlayerPrefs variable or its default value. </summary>
         /// <param name="key">Key name</param>

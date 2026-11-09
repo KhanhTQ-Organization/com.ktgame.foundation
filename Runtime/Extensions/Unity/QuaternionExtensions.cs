@@ -1,4 +1,5 @@
 using com.ktgame.foundation.math;
+using System.Globalization;
 using UnityEngine;
 
 namespace com.ktgame.foundation.extensions.unity
@@ -15,12 +16,14 @@ namespace com.ktgame.foundation.extensions.unity
         /// <param name="a">The left-hand side of the equality check.</param>
         /// <param name="b">The right-hand side of the equality check.</param>
         /// <returns>True if the values are equal.</returns>
-        public static bool NearlyEquals(this Quaternion a, Quaternion b, float epsilon = MathConstants.Epsilon) =>
+        public static bool NearlyEquals(this Quaternion a, Quaternion b, float epsilon = MathConstants.QuaternionEpsilon) =>
             1.0f - Mathf.Abs(Quaternion.Dot(a, b)) < epsilon;
 
         /// <summary> Quaternion to string. </summary>
         /// <param name="self">Value</param>
         /// <returns>string</returns>
-        public static string ToString(this Quaternion self) => $"{self.x},{self.y},{self.z},{self.w}";
+        public static string ToString(this Quaternion self) =>
+            string.Join(",", self.x.ToString(CultureInfo.InvariantCulture), self.y.ToString(CultureInfo.InvariantCulture),
+                self.z.ToString(CultureInfo.InvariantCulture), self.w.ToString(CultureInfo.InvariantCulture));
     }
 }

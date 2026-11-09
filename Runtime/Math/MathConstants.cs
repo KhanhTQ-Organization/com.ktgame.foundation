@@ -41,6 +41,13 @@ namespace com.ktgame.foundation.math
         /// <summary>Using float.epsilon can cause precision problems in Unity.</summary>
         public const float Epsilon = 1.4E-32f;
 
+        /// <summary> Sai số mặc định khi so sánh gần bằng (NearlyEquals...). </summary>
+        /// <remarks> Epsilon (1.4E-32) quá nhỏ so với độ chính xác của float, dùng để so sánh thì gần như là so bằng tuyệt đối. </remarks>
+        public const float ComparisonEpsilon = 1.0E-5f;
+
+        /// <summary> Sai số mặc định khi so sánh hai quaternion (1 - |dot|), tương đương khoảng 0.16 độ. </summary>
+        public const float QuaternionEpsilon = 1.0E-6f;
+
         /// <summary> Positive infinity </summary>
         public static readonly float Infinity = Mathf.Infinity;
 

@@ -39,15 +39,17 @@ namespace com.ktgame.foundation.extensions.unity
         /// <summary> Destroy all children. </summary>
         public static void DestroyChildren(this Transform self)
         {
-            while (self.childCount > 0)
-                Object.Destroy(self.GetChild(0));
+            // Hủy GameObject của con (hủy Transform bị Unity từ chối). Destroy chỉ có hiệu lực cuối frame,
+            // nên duyệt ngược theo chỉ số thay vì while(childCount > 0) (trước đây lặp vô hạn, treo game).
+            for (var i = self.childCount - 1; i >= 0; i--)
+                Object.Destroy(self.GetChild(i).gameObject);
         }
 
         /// <summary> Destroy all children immediately, only advisable in the Editor. </summary>
         public static void DestroyChildrenImmediate(this Transform self)
         {
-            while (self.childCount > 0)
-                Object.DestroyImmediate(self.GetChild(0));
+            for (var i = self.childCount - 1; i >= 0; i--)
+                Object.DestroyImmediate(self.GetChild(i).gameObject);
         }
 
         /// <summary> Destroy all children immediately, using DestroyImmediate in the Editor and Destroy outside it. </summary>
@@ -190,7 +192,7 @@ namespace com.ktgame.foundation.extensions.unity
         /// <param name="self">Transform</param>
         /// <param name="x">X axis</param>
         /// <param name="z">Z axis</param>
-        public static void SetLocalXZ(this Transform self, float x, float z) => self.localPosition = new Vector3(x, self.localPosition.z, z);
+        public static void SetLocalXZ(this Transform self, float x, float z) => self.localPosition = new Vector3(x, self.localPosition.y, z);
 
         /// <summary> Sets the local Y and Z position of this transform. </summary>
         /// <param name="self">Transform</param>
@@ -301,7 +303,8 @@ namespace com.ktgame.foundation.extensions.unity
         /// <param name="x">X axis</param>
         /// <param name="y">Y axis</param>
         /// <param name="z">Z axis</param>
-        public static void ScaleByXYZ(this Transform self, float x, float y, float z) => self.localScale = new Vector3(x, y, z);
+        public static void ScaleByXYZ(this Transform self, float x, float y, float z) =>
+            self.localScale = new Vector3(self.localScale.x * x, self.localScale.y * y, self.localScale.z * z);
 
         /// <summary> Scale this transform in the X, Y and Z directions. </summary>
         /// <param name="self">Transform</param>
@@ -334,7 +337,7 @@ namespace com.ktgame.foundation.extensions.unity
 
         /// <summary> Negates the X, Y and Z scale. </summary>
         /// <param name="self">Transform</param>
-        public static void FlipXYZ(this Transform self) => self.SetScaleXYZ(-self.localScale.z, -self.localScale.y, -self.localScale.z);
+        public static void FlipXYZ(this Transform self) => self.SetScaleXYZ(-self.localScale.x, -self.localScale.y, -self.localScale.z);
 
         /// <summary> Sets all scale values to the absolute values. </summary>
         /// <param name="self">Transform</param>
